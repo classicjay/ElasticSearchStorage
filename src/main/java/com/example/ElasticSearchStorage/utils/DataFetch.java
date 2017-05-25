@@ -79,16 +79,25 @@ public class DataFetch {
     public static List<HashMap<String,Object>> mergeRedundancy(List<HashMap<String,Object>> originalList){
         List<HashMap<String,Object>> resultList = new ArrayList<>();
         for (int i=0;i<originalList.size();i++){
-            String frontMark = (String) originalList.get(i).get("MarkName");
-            String frontSpecific = (String) originalList.get(i).get("SpecificMark");
-            String backMark = (String) originalList.get(i+1).get("MarkName");
-            String backSpecific = (String) originalList.get(i+1).get("SpecificMark");
-            if (frontMark.equals(backMark) && frontSpecific.equals(backSpecific)){
-                if (resultList.isEmpty() || !resultList.isEmpty() && !resultList.get(resultList.size()-1).equals(originalList.get(i))){
+            //保存当前元素的MarkName和SpecificMark值
+            String currentMark = (String) originalList.get(i).get("MarkName");
+            String currentSpecific = (String) originalList.get(i).get("SpecificMark");
+            //保存下一个元素的MarkName和SpecificMark值
+            String nextMark = (String) originalList.get(i+1).get("MarkName");
+            String nextSpecific = (String) originalList.get(i+1).get("SpecificMark");
+            //保存resultList中末尾元素的MarkName和SpecificMark值
+            String resLastMark = null;
+            String resLastSpecific = null;
+            if (!resultList.isEmpty()){
+                resLastMark = (String) resultList.get(resultList.size()-1).get("MarkName");
+                resLastSpecific = (String) resultList.get(resultList.size()-1).get("SpecificMark");
+            }
+            if (currentMark.equals(nextMark) && currentSpecific.equals(nextSpecific)){
+                if (resultList.isEmpty() || !resultList.isEmpty() && (!resLastMark.equals(currentMark)||!resLastSpecific.equals(currentSpecific))){
                     resultList.add(originalList.get(i));
                 }
             }else if (i!=originalList.size()-2){
-                if (resultList.isEmpty() || !resultList.isEmpty() && !resultList.get(resultList.size()-1).equals(originalList.get(i))){
+                if (resultList.isEmpty() || !resultList.isEmpty() && (!resLastMark.equals(currentMark)||!resLastSpecific.equals(currentSpecific))){
                     resultList.add(originalList.get(i));
                 }
             }else {
