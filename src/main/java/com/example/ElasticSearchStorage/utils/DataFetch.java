@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import static com.example.ElasticSearchStorage.ElasticSearchStorageApplication.*;
+
 /**
  * <p>Title: BONC -  DataFetch</p>
  * <p>Description:  </p>
@@ -26,17 +28,18 @@ import java.util.List;
  */
 public class DataFetch {
     private static Logger logger = Logger.getLogger(DataFetch.class);
+
     /**
      *
      * @param client
-     * @param indexName 索引名
-     * @param typeName 类型名
      * @param userId 用户ID
-     * @param fetchType 查询类型：报告（Reqort4G）、专题（）、指标（）、全部（）
+     * @param selectId 查询类型：指标（1）、专题（2）、报告（3）、全部（999）
      */
-    public static List<HashMap<String,Object>> search(TransportClient client, String indexName, String typeName, String userId, String fetchType) {
+    public static String search(TransportClient client, String userId, String selectId) {
         SearchResponse response = null;
-        if (fetchType.equals("全部")){
+        String indexName = "dw3.0_nginx_log_v1";
+        String typeName = "nginxlog";
+        if (selectId.equals("999")){
             response = client.prepareSearch(indexName)
                     .setTypes(typeName)
                     .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
@@ -49,7 +52,7 @@ public class DataFetch {
                     .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
                     .setQuery(QueryBuilders.boolQuery()
                             .must(QueryBuilders.matchQuery("UserID",userId))
-                            .must(QueryBuilders.matchQuery("MarkName",fetchType)))
+                            .must(QueryBuilders.matchQuery("MarkName",urlTypeCodeMap.get(selectId))))
                     .addSort("date", SortOrder.DESC)
                     .get();
         }
@@ -60,15 +63,22 @@ public class DataFetch {
         for (SearchHit hit:hits){
             JSONObject jsonObject = JSON.parseObject(hit.getSourceAsString());
             HashMap<String,Object> map = new HashMap<>();
-            map.put("date",jsonObject.get("date").toString());
-            map.put("MarkName",jsonObject.get("MarkName").toString());
-            map.put("SpecificMark",jsonObject.get("SpecificMark").toString());
-//            map.put("UserID",jsonObject.get("UserID").toString());
+//            map.put("date",jsonObject.get("date").toString());
+            map.put("class",urlCodeNameMap.get(jsonObject.get("MarkName").toString()));
+            map.put("detailId",jsonObject.get("SpecificMark").toString());
+            map.put("detailName",deatilCodeNameMap.get(jsonObject.get("SpecificMark").toString()));
+            map.put("detailUrl",jsonObject.get("MarkName").toString());
+            map.put("detailFlag","1");//暂时写死
             resultList.add(map);
         }
         resultList = mergeRedundancy(resultList);
-        logger.info("最终List为"+resultList);
-        return resultList;
+        HashMap<String,Object> resultMap = new HashMap<>();
+        if (!resultList.isEmpty()){
+            resultMap.put("recentVisitList",resultList);
+        }
+        String resultJson = JSON.toJSONString(resultMap);
+        logger.info("最终结果为："+resultJson);
+        return resultJson;
     }
 
     /**
@@ -80,17 +90,17 @@ public class DataFetch {
         List<HashMap<String,Object>> resultList = new ArrayList<>();
         for (int i=0;i<originalList.size();i++){
             //保存当前元素的MarkName和SpecificMark值
-            String currentMark = (String) originalList.get(i).get("MarkName");
-            String currentSpecific = (String) originalList.get(i).get("SpecificMark");
+            String currentMark = (String) originalList.get(i).get("detailUrl");
+            String currentSpecific = (String) originalList.get(i).get("detailId");
             //保存下一个元素的MarkName和SpecificMark值
-            String nextMark = (String) originalList.get(i+1).get("MarkName");
-            String nextSpecific = (String) originalList.get(i+1).get("SpecificMark");
+            String nextMark = (String) originalList.get(i+1).get("detailUrl");
+            String nextSpecific = (String) originalList.get(i+1).get("detailId");
             //保存resultList中末尾元素的MarkName和SpecificMark值
             String resLastMark = null;
             String resLastSpecific = null;
             if (!resultList.isEmpty()){
-                resLastMark = (String) resultList.get(resultList.size()-1).get("MarkName");
-                resLastSpecific = (String) resultList.get(resultList.size()-1).get("SpecificMark");
+                resLastMark = (String) resultList.get(resultList.size()-1).get("detailUrl");
+                resLastSpecific = (String) resultList.get(resultList.size()-1).get("detailId");
             }
             if (currentMark.equals(nextMark) && currentSpecific.equals(nextSpecific)){
                 if (resultList.isEmpty() || !resultList.isEmpty() && (!resLastMark.equals(currentMark)||!resLastSpecific.equals(currentSpecific))){

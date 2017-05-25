@@ -5,10 +5,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 import static com.example.ElasticSearchStorage.ElasticSearchStorageApplication.client;
 
 /**
@@ -22,26 +18,24 @@ import static com.example.ElasticSearchStorage.ElasticSearchStorageApplication.c
  */
 @RestController
 @CrossOrigin(origins = "*")
-@Api(value="ElasticSearch",description="EarthShaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaker")
+@Api(value="ElasticSearch",description="根据指定参数从ES查询并处理结果集")
 @RequestMapping("/es")
 public class FetchController {
 
     /**
      *
-     * @param param 索引，类型，用户ID，查询类型：报告（Reqort4G）、专题（）、指标（）、全部（）
+     * @param param 索引，类型，用户ID，查询类型：指标（1）、专题（2）、报告（3）、全部（999）
      * @return
      */
     @PostMapping("/fetch")
     public Object fetchData(@RequestBody @ApiParam("请求参数") String param){
         String[] paramArr = param.split(",");
-        List<HashMap<String,Object>> resultList = new ArrayList<>();
-        if (paramArr.length == 4){
-            String index = paramArr[0];
-            String type = paramArr[1];
-            String userId = paramArr[2];
-            String fetchType = paramArr[3];
-            resultList = DataFetch.search(client,index,type,userId,fetchType);
-            return resultList;
+        String resultJson = null;
+        if (paramArr.length == 2){
+            String userId = paramArr[0];
+            String selectId = paramArr[1];
+            resultJson = DataFetch.search(client,userId,selectId);
+            return resultJson;
         }else {
             return "参数错误";
         }
