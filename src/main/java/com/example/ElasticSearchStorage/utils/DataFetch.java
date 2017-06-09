@@ -2,6 +2,7 @@ package com.example.ElasticSearchStorage.utils;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.example.ElasticSearchStorage.service.ElasticSearchService;
 import org.apache.log4j.Logger;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
@@ -10,6 +11,8 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.sort.SortOrder;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,18 +29,21 @@ import static com.example.ElasticSearchStorage.ElasticSearchStorageApplication.*
  * @author zhaojie
  * @version 1.0.0
  */
+@Service
 public class DataFetch {
     private static Logger logger = Logger.getLogger(DataFetch.class);
 
+    @Autowired
+    ElasticSearchService elasticSearchService;
     /**
      *
      * @param client
      * @param userId 用户ID
      * @param selectId 查询类型：指标（1）、专题（2）、报告（3）、全部（999）
      */
-    public static String search(TransportClient client, String userId, String selectId) {
+    public String search(TransportClient client, String userId, String selectId) {
         SearchResponse response = null;
-        String indexName = "dw3.0_nginx_log_v3";
+        String indexName = "dw3.0_nginx_log_proccessed";
         String typeName = "nginxlog";
         if (selectId.equals("999")){
             response = client.prepareSearch(indexName)
@@ -45,6 +51,8 @@ public class DataFetch {
                     .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
                     .setQuery(QueryBuilders.matchQuery("UserID",userId))
                     .addSort("date", SortOrder.DESC)
+                    .setFrom(0)
+                    .setSize(10)
                     .get();
         }else {
             response = client.prepareSearch(indexName)
@@ -54,6 +62,8 @@ public class DataFetch {
                             .must(QueryBuilders.matchQuery("UserID",userId))
                             .must(QueryBuilders.matchQuery("MarkName",urlTypeCodeMap.get(selectId))))
                     .addSort("date", SortOrder.DESC)
+                    .setFrom(0)
+                    .setSize(10)
                     .get();
         }
         SearchHits hits = response.getHits();
@@ -62,16 +72,44 @@ public class DataFetch {
 //        SimpleDateFormat sdf = new SimpleDateFormat("dd/MMM/yyyy:HH:mm:ss ZZZZ", Locale.ENGLISH);
         for (SearchHit hit:hits){
             JSONObject jsonObject = JSON.parseObject(hit.getSourceAsString());
-            HashMap<String,Object> map = new HashMap<>();
-//            map.put("date",jsonObject.get("date").toString());
-            map.put("class",urlCodeNameMap.get(jsonObject.get("MarkName").toString()));
-            map.put("detailId",jsonObject.get("SpecificMark").toString());
-            map.put("detailName",deatilCodeNameMap.get(jsonObject.get("SpecificMark").toString()));
-            map.put("detailUrl",jsonObject.get("MarkName").toString());
-            map.put("detailFlag","1");//暂时写死
-            resultList.add(map);
+            String markName = jsonObject.get("MarkName").toString();
+            String specificMark = jsonObject.get("SpecificMark").toString();
+            HashMap<String,Object> resultMap = new HashMap<>();
+            HashMap<String,String> tempMap = new HashMap<>();
+            resultMap.put("class",elasticSearchService.getSelectType("/"+markName).get("MODULE_NAME"));
+            resultMap.put("detailUrl",markName);
+            resultMap.put("detailId",specificMark);
+            if (markName.equals("indexDetails")){//指标
+                tempMap = elasticSearchService.getKpiNameAcct(specificMark);
+                if (null != tempMap && !tempMap.isEmpty()){
+                    resultMap.put("detailName",tempMap.get("KPI_NAME"));
+                    resultMap.put("detailFlag",tempMap.get("LABEL_TYPE"));
+                }else {
+                    resultMap.put("detailName","未知");
+                    resultMap.put("detailFlag","未知");
+                }
+            }else if (markName.equals("specialReport")){//专题
+                tempMap = elasticSearchService.getSubNameAcct(specificMark);
+                if (null != tempMap && !tempMap.isEmpty()){
+                    resultMap.put("detailName",tempMap.get("SUBJECT_NAME"));
+                    resultMap.put("detailFlag",tempMap.get("LABEL_TYPE"));
+                }else {
+                    resultMap.put("detailName","未知");
+                    resultMap.put("detailFlag","未知");
+                }
+            }else if (markName.equals("reportPPT")){//报告
+                tempMap = elasticSearchService.getReportName(specificMark);
+                if (null != tempMap && !tempMap.isEmpty()){
+                    resultMap.put("detailName",tempMap.get("FILENAME"));
+                    resultMap.put("detailFlag","-1");
+                }else {
+                    resultMap.put("detailName","未知");
+                    resultMap.put("detailFlag","未知");
+                }
+            }
+            resultList.add(resultMap);
         }
-        resultList = mergeRedundancy(resultList);
+//        resultList = mergeRedundancy(resultList);
         HashMap<String,Object> resultMap = new HashMap<>();
         if (!resultList.isEmpty()){
             resultMap.put("recentVisitList",resultList);

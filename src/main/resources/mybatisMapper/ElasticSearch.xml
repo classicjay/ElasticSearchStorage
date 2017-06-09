@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.ElasticSearchStorage.mapper.ElasticSearchMapper">
+
+    <select id="getAllType" resultType="java.util.HashMap">
+        select t.MODULE_CODE,t.MODULE_NAME from DW_NEWQUERY_MODULE_TYPE t
+        order by to_number(t.ORD)
+    </select>
+
+    <!--获取查询类型-->
+    <select id="getSelectType" parameterType="String" resultType="java.util.HashMap">
+        select t.MODULE_NAME from DW_NEWQUERY_MODULE_TYPE t
+        where t.URL=#{markName}
+    </select>
+
+    <!--获取指标编码对应名称以及日月标识-->
+    <select id="getKpiNameAcct" parameterType="String" resultType="java.util.HashMap">
+        select t.KPI_NAME,case t.LABEL_TYPE
+        when 'D' then '1'
+        when 'M' then '2'
+        else '其他' end LABEL_TYPE
+        from DMCODE_PUB.DMCODE_COMP_KPI_MAPPING t
+        where t.KPI_CODE=#{kpiCode}
+    </select>
+
+    <!--获取专题编码对应名称以及日月标识-->
+    <select id="getSubNameAcct" parameterType="String" resultType="java.util.HashMap">
+        select t.SUBJECT_NAME,t.LABEL_TYPE from DW_NEWQUERY_SUBJECT t
+        where t.SUBJECT_CODE=#{subjectCode}
+    </select>
+
+    <!--获取报告编码对应名称-->
+    <select id="getReportName" parameterType="String" resultType="java.util.HashMap">
+        select t.FILENAME from DW_NEWQUERY_REPORT t
+        where t.ID=#{reportCode}
+    </select>
+
+</mapper>
