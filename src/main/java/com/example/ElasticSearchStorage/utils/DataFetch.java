@@ -80,7 +80,15 @@ public class DataFetch {
             String specificMark = jsonObject.get("SpecificMark").toString();
             HashMap<String,Object> resultMap = new HashMap<>();
             HashMap<String,String> tempMap = new HashMap<>();
-            resultMap.put("class",elasticSearchService.getSelectType("/"+markName).get("MODULE_NAME"));
+            HashMap<String,String> typeMap = new HashMap<>();
+            typeMap = elasticSearchService.getSelectType("/"+markName);
+            if (null!=typeMap && !typeMap.isEmpty()){
+                resultMap.put("class",typeMap.get("MODULE_NAME"));
+                resultMap.put("classId",typeMap.get("MODULE_CODE"));
+            }else {
+                resultMap.put("class","未知");
+                resultMap.put("classId","未知");
+            }
             resultMap.put("detailUrl",markName);
             resultMap.put("detailId",specificMark);
             if (markName.equals("indexDetails")){//指标

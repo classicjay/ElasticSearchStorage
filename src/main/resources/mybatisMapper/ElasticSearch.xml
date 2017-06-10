@@ -9,7 +9,7 @@
 
     <!--获取查询类型-->
     <select id="getSelectType" parameterType="String" resultType="java.util.HashMap">
-        select t.MODULE_NAME from DW_NEWQUERY_MODULE_TYPE t
+        select t.MODULE_NAME,t.MODULE_CODE from DW_NEWQUERY_MODULE_TYPE t
         where t.URL=#{markName}
     </select>
 
