@@ -43,7 +43,7 @@ public class FetchController {
      * @return
      */
     @PostMapping("/recentVisit")
-    public Object getClassList(@RequestBody @ApiParam("请求格式：用户id，登录令牌") String param){
+    public Object getClassList(@RequestBody @ApiParam("用户id，登录令牌") HashMap<String,Object> param){
         List<HashMap<String,String>> resultList = new ArrayList<>();
         resultList = elasticSearchService.getAllType();
         logger.info("查询结果为："+resultList);
@@ -63,18 +63,23 @@ public class FetchController {
      * @return
      */
     @PostMapping("/recentVisitList")
-    public Object getRecentVisit(@RequestBody @ApiParam("请求格式：用户id，登录令牌，查询类型id") String param){
-        String[] paramArr = param.split(",");
-        String resultJson = null;
-        if (paramArr.length == 3){
-            String userId = paramArr[0];
-            String token = paramArr[1];
-            String selectId = paramArr[2];
-            resultJson = dataFetch.search(client,userId,selectId);
-            return resultJson;
-        }else {
-            return "参数错误";
-        }
+    public Object getRecentVisit(@RequestBody @ApiParam("用户id，登录令牌，查询类型id") HashMap<String,Object> param){
+        String userId = param.get("userId").toString();
+        String token = param.get("token").toString();
+        String selectId = param.get("id").toString();
+        String resultJSON = dataFetch.search(client,userId,selectId);
+        return resultJSON;
+//        String[] paramArr = param.split(",");
+//        String resultJson = null;
+//        if (paramArr.length == 3){
+//            String userId = paramArr[0];
+//            String token = paramArr[1];
+//            String selectId = paramArr[2];
+//            resultJson = dataFetch.search(client,userId,selectId);
+//            return resultJson;
+//        }else {
+//            return "参数错误";
+//        }
     }
 
 

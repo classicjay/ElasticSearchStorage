@@ -3,7 +3,7 @@
 <mapper namespace="com.example.ElasticSearchStorage.mapper.ElasticSearchMapper">
 
     <select id="getAllType" resultType="java.util.HashMap">
-        select t.MODULE_CODE,t.MODULE_NAME from DW_NEWQUERY_MODULE_TYPE t
+        select t.MODULE_CODE "id",t.MODULE_NAME "name" from DW_NEWQUERY_MODULE_TYPE t
         order by to_number(t.ORD)
     </select>
 

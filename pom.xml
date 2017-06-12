@@ -5,11 +5,11 @@
 
 	<groupId>com.example</groupId>
 	<artifactId>ElasticSearchStorage</artifactId>
-	<version>0.1.2-SNAPSHOT</version>
+	<version>0.1.5-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>ElasticSearchStorage</name>
-	<description>返回格式增加classId字段</description>
+	<description>detailUrl加"/"</description>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>

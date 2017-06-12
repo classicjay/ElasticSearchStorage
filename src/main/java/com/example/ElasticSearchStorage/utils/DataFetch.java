@@ -89,7 +89,7 @@ public class DataFetch {
                 resultMap.put("class","未知");
                 resultMap.put("classId","未知");
             }
-            resultMap.put("detailUrl",markName);
+            resultMap.put("detailUrl","/"+markName);
             resultMap.put("detailId",specificMark);
             if (markName.equals("indexDetails")){//指标
                 tempMap = elasticSearchService.getKpiNameAcct(specificMark);
