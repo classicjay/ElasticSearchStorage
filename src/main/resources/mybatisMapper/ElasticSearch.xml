@@ -9,13 +9,13 @@
 
     <!--获取查询类型-->
     <select id="getSelectType" parameterType="String" resultType="java.util.HashMap">
-        select t.MODULE_NAME,t.MODULE_CODE from DW_NEWQUERY_MODULE_TYPE t
+        select t.MODULE_NAME,t.MODULE_CODE from V_DW_NEWQUERY_LOG_URL t
         where t.URL=#{markName}
     </select>
 
     <!--获取指标编码对应名称以及日月标识-->
     <select id="getKpiNameAcct" parameterType="String" resultType="java.util.HashMap">
-        select t.KPI_NAME,case t.LABEL_TYPE
+        select t.KPI_FULL_NAME "KPI_NAME",case t.LABEL_TYPE
         when 'D' then '1'
         when 'M' then '2'
         else '其他' end LABEL_TYPE

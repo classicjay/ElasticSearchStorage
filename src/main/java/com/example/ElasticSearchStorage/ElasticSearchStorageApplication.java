@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.HashMap;
 
 @SpringBootApplication
 @ComponentScan
@@ -27,11 +26,11 @@ public class ElasticSearchStorageApplication {
 
 	public static TransportClient client;
 
-	public final static HashMap urlTypeCodeMap = new HashMap(){{
-		put("1","indexDetails");
-		put("2","specialReport");
-		put("3","reportPPT");
-	}};
+//	public final static HashMap urlTypeCodeMap = new HashMap(){{
+//		put("1","indexDetails");
+//		put("2","specialReport");
+//		put("3","reportPPT");
+//	}};
 
 //	public final static HashMap<String,String> urlCodeNameMap = new HashMap<>();
 //	static {

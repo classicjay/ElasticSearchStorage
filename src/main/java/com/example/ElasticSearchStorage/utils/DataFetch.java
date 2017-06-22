@@ -18,8 +18,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static com.example.ElasticSearchStorage.ElasticSearchStorageApplication.*;
-
 /**
  * <p>Title: BONC -  DataFetch</p>
  * <p>Description:  </p>
@@ -43,33 +41,52 @@ public class DataFetch {
      */
     public String search(TransportClient client, String userId, String selectId) {
         SearchResponse response = null;
-        String indexName = "dw3.0_nginx_log_proccessed";
-        String typeName = "nginxlog";
+        String indexName = "dw3.0_nginx_log_proccessed_shell";
+        String typeName = "";
         if (selectId.equals("999")){
-            response = client.prepareSearch(indexName)
-                    .setTypes(typeName)
-                    .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
-                    .addSort("date", SortOrder.DESC)
-                    .addSort("MarkName", SortOrder.DESC)
-                    .addSort("SpecificMark", SortOrder.DESC)
-                    .setQuery(QueryBuilders.matchQuery("UserID",userId))
-                    .setFrom(0)
-                    .setSize(10)
-                    .get();
-        }else {
-            response = client.prepareSearch(indexName)
-                    .setTypes(typeName)
-                    .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
-                    .addSort("date", SortOrder.DESC)
-                    .addSort("MarkName", SortOrder.DESC)
-                    .addSort("SpecificMark", SortOrder.DESC)
-                    .setQuery(QueryBuilders.boolQuery()
-                            .must(QueryBuilders.matchQuery("UserID",userId))
-                            .must(QueryBuilders.matchQuery("MarkName",urlTypeCodeMap.get(selectId))))
-                    .setFrom(0)
-                    .setSize(10)
-                    .get();
+            typeName = "nginxlog";
+        }else if (selectId.equals("1")){
+            typeName = "indexdetails";
+        }else if (selectId.equals("2")){
+            typeName = "specialreport";
+        }else if (selectId.equals("3")){
+            typeName = "report";
         }
+        response = client.prepareSearch(indexName)
+                .setTypes(typeName)
+                .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+                .addSort("date", SortOrder.DESC)
+                .addSort("MarkName", SortOrder.DESC)
+                .addSort("SpecificMark", SortOrder.DESC)
+                .setQuery(QueryBuilders.matchQuery("UserID",userId))
+                .setFrom(0)
+                .setSize(10)
+                .get();
+//        if (selectId.equals("999")){
+//            response = client.prepareSearch(indexName)
+//                    .setTypes(typeName)
+//                    .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+//                    .addSort("date", SortOrder.DESC)
+//                    .addSort("MarkName", SortOrder.DESC)
+//                    .addSort("SpecificMark", SortOrder.DESC)
+//                    .setQuery(QueryBuilders.matchQuery("UserID",userId))
+//                    .setFrom(0)
+//                    .setSize(10)
+//                    .get();
+//        }else {
+//            response = client.prepareSearch(indexName)
+//                    .setTypes(typeName)
+//                    .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+//                    .addSort("date", SortOrder.DESC)
+//                    .addSort("MarkName", SortOrder.DESC)
+//                    .addSort("SpecificMark", SortOrder.DESC)
+//                    .setQuery(QueryBuilders.boolQuery()
+//                            .must(QueryBuilders.matchQuery("UserID",userId))
+//                            .must(QueryBuilders.matchQuery("MarkName",urlTypeCodeMap.get(selectId))))
+//                    .setFrom(0)
+//                    .setSize(10)
+//                    .get();
+//        }
         SearchHits hits = response.getHits();
         logger.info("查询到"+ hits.getTotalHits() +"条记录");
         List<HashMap<String,Object>> resultList = new ArrayList<>();
@@ -82,16 +99,19 @@ public class DataFetch {
             HashMap<String,String> tempMap = new HashMap<>();
             HashMap<String,String> typeMap = new HashMap<>();
             typeMap = elasticSearchService.getSelectType("/"+markName);
+            String moduleName = new String();
             if (null!=typeMap && !typeMap.isEmpty()){
-                resultMap.put("class",typeMap.get("MODULE_NAME"));
+                moduleName = typeMap.get("MODULE_NAME");
+                resultMap.put("class",moduleName);
                 resultMap.put("classId",typeMap.get("MODULE_CODE"));
             }else {
+                moduleName = "未知";
                 resultMap.put("class","未知");
                 resultMap.put("classId","未知");
             }
             resultMap.put("detailUrl","/"+markName);
             resultMap.put("detailId",specificMark);
-            if (markName.equals("indexDetails")){//指标
+            if (moduleName.equals("指标")){//指标
                 tempMap = elasticSearchService.getKpiNameAcct(specificMark);
                 if (null != tempMap && !tempMap.isEmpty()){
                     resultMap.put("detailName",tempMap.get("KPI_NAME"));
@@ -100,7 +120,7 @@ public class DataFetch {
                     resultMap.put("detailName","未知");
                     resultMap.put("detailFlag","未知");
                 }
-            }else if (markName.equals("specialReport")){//专题
+            }else if (moduleName.equals("专题")){//专题
                 tempMap = elasticSearchService.getSubNameAcct(specificMark);
                 if (null != tempMap && !tempMap.isEmpty()){
                     resultMap.put("detailName",tempMap.get("SUBJECT_NAME"));
@@ -109,7 +129,7 @@ public class DataFetch {
                     resultMap.put("detailName","未知");
                     resultMap.put("detailFlag","未知");
                 }
-            }else if (markName.equals("reportPPT")){//报告
+            }else if (moduleName.equals("报告")){//报告
                 tempMap = elasticSearchService.getReportName(specificMark);
                 if (null != tempMap && !tempMap.isEmpty()){
                     resultMap.put("detailName",tempMap.get("FILENAME"));
@@ -118,6 +138,9 @@ public class DataFetch {
                     resultMap.put("detailName","未知");
                     resultMap.put("detailFlag","未知");
                 }
+            }else {
+                resultMap.put("detailName","未知");
+                resultMap.put("detailFlag","未知");
             }
             resultList.add(resultMap);
         }
