@@ -41,7 +41,7 @@ public class DataFetch {
      */
     public String search(TransportClient client, String userId, String selectId) {
         SearchResponse response = null;
-        String indexName = "dw3.0_nginx_log_proccessed_shell";
+        String indexName = "dw3.0_nginx_log_proccessed";
         String typeName = "";
         if (selectId.equals("999")){
             typeName = "nginxlog";
