@@ -60,6 +60,9 @@ public class DataFetch {
                 .addSort("MarkName", SortOrder.DESC)
                 .addSort("SpecificMark", SortOrder.DESC)
                 .setQuery(QueryBuilders.matchQuery("UserID",userId))
+//                .setQuery(QueryBuilders.boolQuery()
+//                        .must(QueryBuilders.matchQuery("UserID",userId))
+//                        .must(QueryBuilders.rangeQuery("date").gte("1500360926000").lte("1500369462000")))
                 .setFrom(0)
                 .setSize(10)
                 .get();
