@@ -5,7 +5,7 @@
 
 	<groupId>com.example</groupId>
 	<artifactId>ElasticSearchStorage</artifactId>
-	<version>0.2.0-SNAPSHOT-8044</version>
+	<version>0.2.2-SNAPSHOT-8065</version>
 	<packaging>jar</packaging>
 
 	<name>ElasticSearchStorage</name>

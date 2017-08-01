@@ -69,17 +69,19 @@ public class FetchController {
         String selectId = param.get("id").toString();
         String resultJSON = dataFetch.search(client,userId,selectId);
         return resultJSON;
-//        String[] paramArr = param.split(",");
-//        String resultJson = null;
-//        if (paramArr.length == 3){
-//            String userId = paramArr[0];
-//            String token = paramArr[1];
-//            String selectId = paramArr[2];
-//            resultJson = dataFetch.search(client,userId,selectId);
-//            return resultJson;
-//        }else {
-//            return "参数错误";
-//        }
+    }
+
+    /**
+     * 搜索框提示
+     * @param param
+     * @return
+     */
+    @PostMapping("/recommendList")
+    public Object getSearchBox(@RequestBody @ApiParam("筛选分类id,搜索词") HashMap<String,Object> param){
+        String selectedId = param.get("selectedId").toString();
+        String searchValue = param.get("searchValue").toString();
+        String resultJSON = dataFetch.regSearch(client,selectedId,searchValue);
+        return resultJSON;
     }
 
 

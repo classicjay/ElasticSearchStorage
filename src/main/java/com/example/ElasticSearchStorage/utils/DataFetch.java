@@ -33,6 +33,91 @@ public class DataFetch {
 
     @Autowired
     ElasticSearchService elasticSearchService;
+
+    /**
+     * 根据搜索词进行正则匹配，取5条返回
+     * @param client
+     * @param selectedId
+     * @param searchValue
+     * @return
+     */
+    public String regSearch(TransportClient client,String selectedId,String searchValue){
+        List<HashMap<String,String>> resultList = new ArrayList<>();
+        SearchResponse response = null;
+        String indexName = "es_dw3.0_v2_is_minus";
+        if ("".equals(searchValue)){
+            return JSON.toJSONString(resultList);
+        }
+        if ("999".equals(selectedId)){
+            response = client.prepareSearch(indexName)
+                    .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+                    .setQuery(QueryBuilders.boolQuery()
+                            .should(QueryBuilders.regexpQuery("KPI_Name.keyword",searchValue+".*"))
+                            .should(QueryBuilders.regexpQuery("Subject_Name.keyword",searchValue+".*")))
+                    .setFrom(0)
+                    .setSize(5)
+                    .get();
+        }else if ("1".equals(selectedId)){
+            response = client.prepareSearch(indexName)
+                    .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+                    .setQuery(QueryBuilders.regexpQuery("KPI_Name.keyword",searchValue+".*"))
+                    .setFrom(0)
+                    .setSize(5)
+                    .get();
+        }else if ("2".equals(selectedId)){
+            response = client.prepareSearch(indexName)
+                    .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+                    .setQuery(QueryBuilders.regexpQuery("Subject_Name.keyword",searchValue+".*"))
+                    .setFrom(0)
+                    .setSize(5)
+                    .get();
+        }else if ("3".equals(selectedId)){
+            response = client.prepareSearch(indexName)
+                    .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+                    .setQuery(QueryBuilders.regexpQuery("Report_Name.keyword",searchValue+".*"))
+                    .setFrom(0)
+                    .setSize(5)
+                    .get();
+        }
+
+        //获取5条记录
+        SearchHits hits = response.getHits();
+        System.out.println("hits长度"+hits.getTotalHits());
+        if (null != hits || hits.getTotalHits()>0){
+            for (int i=0;i<hits.getTotalHits();i++){
+                SearchHit hit = hits.getAt(i);
+                String type = hit.getType();
+                JSONObject jsonObject = JSON.parseObject(hit.getSourceAsString());
+                String resultWord = new String();
+                if (null != type && "K".equals(type)){
+                    resultWord = jsonObject.get("KPI_Name").toString();
+                }else if (null != type && "T".equals(type)){
+                    resultWord = jsonObject.get("Subject_Name").toString();
+                }else if (null != type && "R".equals(type)){
+                    resultWord = jsonObject.get("Report_Name").toString();
+                }
+                HashMap<String,String> map = new HashMap<>();
+                map.put("id",String.valueOf(i+1));
+                map.put("name",resultWord);
+                resultList.add(map);
+            }
+        }
+//        for (SearchHit hit:hits){
+//            String type = hit.getType();
+//            JSONObject jsonObject = JSON.parseObject(hit.getSourceAsString());
+//            String resultWord = new String();
+//            if (null != type && "K".equals(type)){
+//                resultWord = jsonObject.get("KPI_Name").toString();
+//            }else if (null != type && "T".equals(type)){
+//                resultWord = jsonObject.get("Subject_Name").toString();
+//            }
+//            resultList.add(resultWord);
+//        }
+        String resultJson = JSON.toJSONString(resultList);
+        System.out.println("最终结果为："+resultJson);
+        return resultJson;
+    }
+
     /**
      *
      * @param client
@@ -66,31 +151,6 @@ public class DataFetch {
                 .setFrom(0)
                 .setSize(10)
                 .get();
-//        if (selectId.equals("999")){
-//            response = client.prepareSearch(indexName)
-//                    .setTypes(typeName)
-//                    .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
-//                    .addSort("date", SortOrder.DESC)
-//                    .addSort("MarkName", SortOrder.DESC)
-//                    .addSort("SpecificMark", SortOrder.DESC)
-//                    .setQuery(QueryBuilders.matchQuery("UserID",userId))
-//                    .setFrom(0)
-//                    .setSize(10)
-//                    .get();
-//        }else {
-//            response = client.prepareSearch(indexName)
-//                    .setTypes(typeName)
-//                    .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
-//                    .addSort("date", SortOrder.DESC)
-//                    .addSort("MarkName", SortOrder.DESC)
-//                    .addSort("SpecificMark", SortOrder.DESC)
-//                    .setQuery(QueryBuilders.boolQuery()
-//                            .must(QueryBuilders.matchQuery("UserID",userId))
-//                            .must(QueryBuilders.matchQuery("MarkName",urlTypeCodeMap.get(selectId))))
-//                    .setFrom(0)
-//                    .setSize(10)
-//                    .get();
-//        }
         SearchHits hits = response.getHits();
         logger.info("查询到"+ hits.getTotalHits() +"条记录");
         List<HashMap<String,Object>> resultList = new ArrayList<>();
