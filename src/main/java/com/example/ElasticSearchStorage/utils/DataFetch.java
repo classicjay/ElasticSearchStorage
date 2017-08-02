@@ -84,7 +84,13 @@ public class DataFetch {
         SearchHits hits = response.getHits();
         System.out.println("hits长度"+hits.getTotalHits());
         if (null != hits || hits.getTotalHits()>0){
-            for (int i=0;i<hits.getTotalHits();i++){
+            int maxIndex ;
+            if (hits.getTotalHits()>5){
+                maxIndex = 5;
+            }else {
+                maxIndex = (int)hits.getTotalHits();
+            }
+            for (int i=0;i<maxIndex;i++){
                 SearchHit hit = hits.getAt(i);
                 String type = hit.getType();
                 JSONObject jsonObject = JSON.parseObject(hit.getSourceAsString());

@@ -4,9 +4,7 @@ import com.example.ElasticSearchStorage.mapper.ElasticSearchMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * <p>Title: BONC -  ElasticSearchService</p>
@@ -76,5 +74,107 @@ public class ElasticSearchService {
         return resultMap;
     }
 
+
+    public HashMap<String,Object> getHotSpot(HashMap<String,Object> paramMap){
+        String userId = paramMap.get("userId").toString();
+        HashMap<String,String> authMap = new HashMap<>();
+        authMap = elasticSearchMapper.getAuthority(userId);
+        if (null == authMap){
+            System.out.println("此用户不在权限表中");
+            return null;
+        }
+        List<String> kpiAuthList = new ArrayList<>();
+        List<String> subAuthList = new ArrayList<>();
+        List<String> repAuthList = new ArrayList<>();
+        if (null != authMap.get("K_AUTHORITY") && !"".equals(authMap.get("K_AUTHORITY"))){
+            String[] kpiAuthArr = authMap.get("K_AUTHORITY").split(",");
+            kpiAuthList = Arrays.asList(kpiAuthArr);
+        }
+        if (null != authMap.get("T_AUTHORITY") && !"".equals(authMap.get("T_AUTHORITY"))){
+            String[] subAuthArr = authMap.get("T_AUTHORITY").split(",");
+            subAuthList = Arrays.asList(subAuthArr);
+        }
+        if (null != authMap.get("R_AUTHORITY") && !"".equals(authMap.get("R_AUTHORITY"))){
+            String[] repAuthArr = authMap.get("R_AUTHORITY").split(",");
+            repAuthList = Arrays.asList(repAuthArr);
+        }
+        List<HashMap<String,String>> kpiSortedList = new ArrayList<>();
+        kpiSortedList = elasticSearchMapper.getKpiSortedData();
+        if (null != kpiAuthList && kpiAuthList.size()!=0){
+            Iterator<HashMap<String,String>> iterator = kpiSortedList.iterator();
+            while (iterator.hasNext()){
+                HashMap<String,String> sigMap = iterator.next();
+                for (String kpiAuth:kpiAuthList){
+                    if (sigMap.get("BM").equals(kpiAuth)){
+                        iterator.remove();
+                    }
+                }
+            }
+        }
+        List<HashMap<String,String>> subSortedList = new ArrayList<>();
+        subSortedList = elasticSearchMapper.getSubjectSortedData();
+        if (null != subAuthList && subAuthList.size()!=0){
+            Iterator<HashMap<String,String>> iterator = subSortedList.iterator();
+            while (iterator.hasNext()){
+                HashMap<String,String> sigMap = iterator.next();
+                for (String subAuth:subAuthList){
+                    if (sigMap.get("BM").equals(subAuth)){
+                        iterator.remove();
+                    }
+                }
+            }
+        }
+        //此时kpiSortedList和subSortedList已经筛选完毕
+        //TODO 抽出一个方法精简代码
+        HashMap<String,Object> resultMap = new HashMap<>();
+        HashMap<String,Object> kpiTitleListMap = new HashMap<>();
+        List<HashMap<String,Object>> svgList = new ArrayList<>();
+
+        HashMap<String,Object> kpiMap = new HashMap<>();
+        kpiTitleListMap.put("titleClassId","1");
+        kpiTitleListMap.put("titleClassName","热门内容");
+        kpiTitleListMap.put("list",processList(kpiSortedList));
+        kpiMap.put("id","1");
+        kpiMap.put("name","指标");
+        kpiMap.put("titleList",kpiTitleListMap);
+
+        HashMap<String,Object> subTitleListMap = new HashMap<>();
+        subTitleListMap.put("titleClassId","1");
+        subTitleListMap.put("titleClassName","热门内容");
+        subTitleListMap.put("list",processList(subSortedList));
+        HashMap<String,Object> subMap = new HashMap<>();
+        subMap.put("id","2");
+        subMap.put("name","专题");
+        subMap.put("titleList",subTitleListMap);
+
+        svgList.add(kpiMap);
+        svgList.add(subMap);
+        resultMap.put("svgList",svgList);
+        return resultMap;
+    }
+
+    private List<HashMap<String,String>> processList(List<HashMap<String,String>> paramList){
+        if (paramList.size()>3){
+            paramList.subList(3,paramList.size()).clear();
+        }
+        List<HashMap<String,String>> resultList = new ArrayList<>();
+        for (int i=0;i<paramList.size();i++){
+            String markName = paramList.get(i).get("MARKNAME");
+            if (markName.equals("specialreport")){
+                markName = "specialReport";
+            }else if (markName.equals("indexdetails")){
+                markName = "indexDetails";
+            }else if (markName.equals("thememonthcheck")){
+                markName = "ThemeMonthCheck";
+            }
+            HashMap<String,String> sigMap = new HashMap<>();
+            sigMap.put("titleId",String.valueOf(i));
+            sigMap.put("titleName",paramList.get(i).get("KS_NAME"));
+            sigMap.put("titleUrl","/"+markName);
+            sigMap.put("flag",paramList.get(i).get("LABEL_TYPE"));
+            resultList.add(sigMap);
+        }
+        return resultList;
+    }
 
 }

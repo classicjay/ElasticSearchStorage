@@ -35,4 +35,43 @@
         where t.ID=#{reportCode}
     </select>
 
+    <select id="getAuthority" parameterType="String" resultType="java.util.HashMap" >
+        select t.USER_ID,t.K_AUTHORITY,t.T_AUTHORITY,t.R_AUTHORITY from USER_AUTHORITY t where 1 = 1
+        <if test="null != userId and '' != userId">
+            and t.USER_ID=#{userId}
+        </if>
+    </select>
+
+    <select id="getKpiSortedData" resultType="java.util.HashMap">
+        select upper(k.BM) BM,k.LY,k.CON,k.RN,k.MARKNAME,j.KPI_FULL_NAME KS_NAME,case j.LABEL_TYPE
+        when 'D' then '1'
+        when 'M' then '2'
+        else '其他' end LABEL_TYPE from ( select *
+        from (SELECT T.*,
+        rank() over(partition by BM order by LY desc, CON desc, VALAUS desc) RN
+        from (select MARKCODE BM, 1 LY, VALAUS, 0 CON, MARKNAME
+        from DM.MANU_BOOSTING_CODE where MARKNAME in ('indexdetails')
+        UNION ALL
+        select SPECIFICMARK BM,0 LY,0 VALAUS,count(SPECIFICMARK) CON,MARKNAME
+        from DM.DW30_ES_BASE_2 where MARKNAME in ('indexdetails')
+        group by SPECIFICMARK, MARKNAME) T
+        order by LY desc, VALAUS desc, CON desc)
+        WHERE RN = 1 )k left join DMCODE_PUB.DMCODE_COMP_KPI_MAPPING j on upper(k.BM)=j.KPI_CODE
+    </select>
+
+    <select id="getSubjectSortedData" resultType="java.util.HashMap">
+        select upper(k.BM) BM,k.LY,k.CON,k.RN,k.MARKNAME,j.SUBJECT_NAME KS_NAME, j.LABEL_TYPE
+        from (select *
+        from (select T.*,
+        rank() over(partition by BM order by LY desc, CON desc, VALAUS desc) RN
+        from (select MARKCODE BM, 1 LY, VALAUS, 0 CON,MARKNAME
+        from DM.MANU_BOOSTING_CODE where MARKNAME in ('specialreport','thememonthcheck')
+        UNION ALL
+        select SPECIFICMARK BM,0 LY,0 VALAUS,count(SPECIFICMARK) CON,MARKNAME
+        from DM.DW30_ES_BASE_2 where MARKNAME in ('specialreport','thememonthcheck')
+        group by SPECIFICMARK, MARKNAME) T
+        order by LY desc, VALAUS desc, CON desc)
+        WHERE RN = 1) k left join DW_NEWQUERY_SUBJECT j on upper(k.BM)=j.SUBJECT_CODE
+    </select>
+
 </mapper>

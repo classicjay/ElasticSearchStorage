@@ -49,4 +49,10 @@ public interface ElasticSearchMapper {
      * @return
      */
     public HashMap<String,String> getReportName(String reportCode);
+
+    public HashMap<String,String> getAuthority(String userId);
+
+    public List<HashMap<String,String>> getKpiSortedData();
+
+    public List<HashMap<String,String>> getSubjectSortedData();
 }
