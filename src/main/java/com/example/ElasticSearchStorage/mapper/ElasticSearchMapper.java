@@ -1,6 +1,7 @@
 package com.example.ElasticSearchStorage.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.HashMap;
 import java.util.List;
@@ -50,7 +51,7 @@ public interface ElasticSearchMapper {
      */
     public HashMap<String,String> getReportName(String reportCode);
 
-    public HashMap<String,String> getAuthority(String userId);
+    public HashMap<String,String> getAuthority(@Param(value = "userId")String userId);
 
     public List<HashMap<String,String>> getKpiSortedData();
 

@@ -8,12 +8,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,7 +25,7 @@ import static com.example.ElasticSearchStorage.ElasticSearchStorageApplication.c
  * @author zhaojie
  * @version 1.0.0
  */
-@Controller
+@RestController
 @CrossOrigin(origins = "*")
 @Api(value="ElasticSearch",description="根据指定参数从ES查询并处理结果集")
 @RequestMapping("/HomePage")
@@ -89,19 +84,7 @@ public class FetchController {
         return resultJSON;
     }
 
-    /**
-     * 热门推荐
-     * @param param
-     * @param model
-     * @return
-     */
-    @PostMapping("/titleList")
-    public String getHotSpot(@ApiParam("登录令牌，用户id")@RequestBody HashMap<String,Object> param,Model model){
-        HashMap<String,Object> dataMap = new HashMap<>();
-        dataMap = elasticSearchService.getHotSpot(param);
-        model.addAttribute("dataMap",dataMap);
-        return "titleList";
-    }
+
 
 
 }

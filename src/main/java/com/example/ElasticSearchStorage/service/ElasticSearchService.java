@@ -100,32 +100,34 @@ public class ElasticSearchService {
         }
         List<HashMap<String,String>> kpiSortedList = new ArrayList<>();
         kpiSortedList = elasticSearchMapper.getKpiSortedData();
-        if (null != kpiAuthList && kpiAuthList.size()!=0){
-            Iterator<HashMap<String,String>> iterator = kpiSortedList.iterator();
-            while (iterator.hasNext()){
-                HashMap<String,String> sigMap = iterator.next();
-                for (String kpiAuth:kpiAuthList){
-                    if (sigMap.get("BM").equals(kpiAuth)){
-                        iterator.remove();
-                    }
-                }
-            }
-        }
         List<HashMap<String,String>> subSortedList = new ArrayList<>();
         subSortedList = elasticSearchMapper.getSubjectSortedData();
-        if (null != subAuthList && subAuthList.size()!=0){
-            Iterator<HashMap<String,String>> iterator = subSortedList.iterator();
-            while (iterator.hasNext()){
-                HashMap<String,String> sigMap = iterator.next();
-                for (String subAuth:subAuthList){
-                    if (sigMap.get("BM").equals(subAuth)){
-                        iterator.remove();
-                    }
-                }
-            }
-        }
-        //此时kpiSortedList和subSortedList已经筛选完毕
-        //TODO 抽出一个方法精简代码
+        authFilter(kpiAuthList,kpiSortedList);
+        authFilter(subAuthList,subSortedList);
+//        if (null != kpiAuthList && kpiAuthList.size()!=0){
+//            Iterator<HashMap<String,String>> iterator = kpiSortedList.iterator();
+//            while (iterator.hasNext()){
+//                HashMap<String,String> sigMap = iterator.next();
+//                for (String kpiAuth:kpiAuthList){
+//                    if (sigMap.get("BM").equals(kpiAuth)){
+//                        iterator.remove();
+//                    }
+//                }
+//            }
+//        }
+
+//        if (null != subAuthList && subAuthList.size()!=0){
+//            Iterator<HashMap<String,String>> iterator = subSortedList.iterator();
+//            while (iterator.hasNext()){
+//                HashMap<String,String> sigMap = iterator.next();
+//                for (String subAuth:subAuthList){
+//                    if (sigMap.get("BM").equals(subAuth)){
+//                        iterator.remove();
+//                    }
+//                }
+//            }
+//        }
+        //此时kpiSortedList和subSortedList已经根据权限筛选完毕
         HashMap<String,Object> resultMap = new HashMap<>();
         HashMap<String,Object> kpiTitleListMap = new HashMap<>();
         List<HashMap<String,Object>> svgList = new ArrayList<>();
@@ -168,7 +170,7 @@ public class ElasticSearchService {
                 markName = "ThemeMonthCheck";
             }
             HashMap<String,String> sigMap = new HashMap<>();
-            sigMap.put("titleId",String.valueOf(i));
+            sigMap.put("titleId",paramList.get(i).get("BM"));
             sigMap.put("titleName",paramList.get(i).get("KS_NAME"));
             sigMap.put("titleUrl","/"+markName);
             sigMap.put("flag",paramList.get(i).get("LABEL_TYPE"));
@@ -177,4 +179,23 @@ public class ElasticSearchService {
         return resultList;
     }
 
+    /**
+     * 根据权限过滤过滤
+     * @param authList 需要剔除的指标list
+     * @param sortedList 生数据list
+     * @return
+     */
+    private void authFilter(List<String> authList,List<HashMap<String,String>> sortedList){
+        if (null != authList && authList.size()!=0){
+            Iterator<HashMap<String,String>> iterator = sortedList.iterator();
+            while (iterator.hasNext()){
+                HashMap<String,String> sigMap = iterator.next();
+                for (String auth:authList){
+                    if (sigMap.get("BM").equals(auth)){
+                        iterator.remove();
+                    }
+                }
+            }
+        }
+    }
 }
