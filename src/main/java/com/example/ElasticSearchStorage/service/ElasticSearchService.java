@@ -104,18 +104,6 @@ public class ElasticSearchService {
         subSortedList = elasticSearchMapper.getSubjectSortedData();
         authFilter(kpiAuthList,kpiSortedList);
         authFilter(subAuthList,subSortedList);
-//        if (null != kpiAuthList && kpiAuthList.size()!=0){
-//            Iterator<HashMap<String,String>> iterator = kpiSortedList.iterator();
-//            while (iterator.hasNext()){
-//                HashMap<String,String> sigMap = iterator.next();
-//                for (String kpiAuth:kpiAuthList){
-//                    if (sigMap.get("BM").equals(kpiAuth)){
-//                        iterator.remove();
-//                    }
-//                }
-//            }
-//        }
-
 
         //此时kpiSortedList和subSortedList已经根据权限筛选完毕
         HashMap<String,Object> resultMap = new HashMap<>();
