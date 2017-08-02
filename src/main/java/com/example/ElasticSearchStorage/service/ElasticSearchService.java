@@ -116,17 +116,7 @@ public class ElasticSearchService {
 //            }
 //        }
 
-//        if (null != subAuthList && subAuthList.size()!=0){
-//            Iterator<HashMap<String,String>> iterator = subSortedList.iterator();
-//            while (iterator.hasNext()){
-//                HashMap<String,String> sigMap = iterator.next();
-//                for (String subAuth:subAuthList){
-//                    if (sigMap.get("BM").equals(subAuth)){
-//                        iterator.remove();
-//                    }
-//                }
-//            }
-//        }
+
         //此时kpiSortedList和subSortedList已经根据权限筛选完毕
         HashMap<String,Object> resultMap = new HashMap<>();
         HashMap<String,Object> kpiTitleListMap = new HashMap<>();
