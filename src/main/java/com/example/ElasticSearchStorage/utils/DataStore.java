@@ -43,12 +43,12 @@ public class DataStore {
         this.loadXML = loadXML;
     }
 
-    public static void main(String[] args) {
-        LoadXML loadXML = new LoadXML();
-        loadXML.readXML("");//TODO
-        DataStore dataStore = new DataStore(loadXML);
-        dataStore.createClient();
-    }
+//    public static void main(String[] args) {
+//        LoadXML loadXML = new LoadXML();
+//        loadXML.readXML("");
+//        DataStore dataStore = new DataStore(loadXML);
+//        dataStore.createClient();
+//    }
 
     /**
      * Bulk批量导入
