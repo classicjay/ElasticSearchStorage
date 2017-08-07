@@ -133,6 +133,11 @@ public class ElasticSearchService {
         return resultMap;
     }
 
+    public HashMap<String,Object> getIntelligentRecommend(HashMap<String,Object> paramMap){
+
+        return null;
+    }
+
     private List<HashMap<String,String>> processList(List<HashMap<String,String>> paramList){
         if (paramList.size()>3){
             paramList.subList(3,paramList.size()).clear();

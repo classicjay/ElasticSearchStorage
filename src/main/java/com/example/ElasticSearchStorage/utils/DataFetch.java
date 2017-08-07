@@ -44,7 +44,7 @@ public class DataFetch {
     public String regSearch(TransportClient client,String selectedId,String searchValue){
         List<HashMap<String,String>> resultList = new ArrayList<>();
         SearchResponse response = null;
-        String indexName = "es_dw3.0_v2_is_minus";
+        String indexName = "es_dw3.0_v2_is_minus_test";
         if ("".equals(searchValue)){
             return JSON.toJSONString(resultList);
         }
@@ -223,6 +223,17 @@ public class DataFetch {
         logger.info("最终结果为："+resultJson);
         return resultJson;
     }
+
+    /**
+     *
+     */
+    public List<String> getEsSorted(TransportClient client, String userId, String selectId){
+        SearchResponse response = null;
+
+        return null;
+
+    }
+
 
     /**
      * 合并相邻Map

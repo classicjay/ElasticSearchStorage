@@ -57,6 +57,7 @@
         group by SPECIFICMARK, MARKNAME) T
         order by LY desc, VALAUS desc, CON desc)
         WHERE RN = 1 )k left join DMCODE_PUB.DMCODE_COMP_KPI_MAPPING j on upper(k.BM)=j.KPI_CODE
+        order by LY desc
     </select>
 
     <select id="getSubjectSortedData" resultType="java.util.HashMap">
@@ -72,6 +73,93 @@
         group by SPECIFICMARK, MARKNAME) T
         order by LY desc, VALAUS desc, CON desc)
         WHERE RN = 1) k left join DW_NEWQUERY_SUBJECT j on upper(k.BM)=j.SUBJECT_CODE
+        order by LY desc
+    </select>
+
+    <!--单用户指定类型一周日志总数和部门编号-->
+    <select id="getOneWeekLogCount" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+        select count(SPECIFICMARK) WEEKCOUNT,DEPTID from DM.DW30_ES_BASE_2
+        where CLICKDATE between (select max(CLICKDATE) from DM.DW30_ES_BASE_2) - 6 and
+        (select max(CLICKDATE) from DM.DW30_ES_BASE_2)
+        <if test="null != userId and '' != userId">
+            and USERID=#{userId}
+        </if>
+        <choose>
+            <when test=' null != searchType and ""  != searchType and searchType == "999" '>
+                and MARKNAME in ('indexdetails','specialreport','thememonthcheck')
+            </when>
+            <when test=' null != searchType and ""  != searchType and searchType == "1" '>
+                and MARKNAME = 'indexdetails'
+            </when>
+            <when test=' null != searchType and ""  != searchType and searchType == "2" '>
+                and MARKNAME in ('specialreport','thememonthcheck')
+            </when>
+        </choose>
+        group by DEPTID
+    </select>
+
+    <!--根据部门id和类型取得M值和Q值-->
+    <select id="getMQ" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+        select * from DM.DW3_LOGS_STATISTIC_BY_DEPT where 1 = 1
+        <if test="null != deptId and '' != deptId">
+            and DEPT_ID=#{deptId}
+        </if>
+        <choose>
+            <when test=' null != searchType and ""  != searchType and searchType == "999" '>
+                and INDEX_TYPE = 'all'
+            </when>
+            <when test=' null != searchType and ""  != searchType and searchType == "1" '>
+                and INDEX_TYPE = 'indexdetails'
+            </when>
+            <when test=' null != searchType and ""  != searchType and searchType == "2" '>
+                and INDEX_TYPE = 'subject'
+            </when>
+        </choose>
+    </select>
+
+    <!--根据部门id和类型获取部门排序结果,前四-->
+    <select id="getDepSorted" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+        select * from (
+        select upper(BM) BM,CON,MARKNAME,
+        case MARKNAME
+        when 'indexdetails' then
+        KPI_FULL_NAME
+        when 'specialreport' then
+        SUBJECT_NAME
+        when 'thememonthcheck' then
+        SUBJECT_NAME
+        end KSNAME,
+        case MARKNAME
+        when 'indexdetails' then
+        '1'
+        when 'specialreport' then
+        '2'
+        when 'thememonthcheck' then
+        '2'
+        end MARKTYPE
+        from (select SPECIFICMARK BM, count(SPECIFICMARK) CON, MARKNAME
+        from DM.DW30_ES_BASE_2
+        where 1 = 1
+        <choose>
+            <when test=' null != searchType and ""  != searchType and searchType == "999" '>
+                and MARKNAME in ('indexdetails','specialreport','thememonthcheck')
+            </when>
+            <when test=' null != searchType and ""  != searchType and searchType == "1" '>
+                and MARKNAME = 'indexdetails'
+            </when>
+            <when test=' null != searchType and ""  != searchType and searchType == "2" '>
+                and MARKNAME in ('specialreport','thememonthcheck')
+            </when>
+        </choose>
+        <if test="null != deptId and '' != deptId">
+            and DEPTID=#{deptId}
+        </if>
+        group by SPECIFICMARK, MARKNAME
+        order by CON desc) t
+        left join DMCODE_PUB.DMCODE_COMP_KPI_MAPPING on upper(t.BM) = KPI_CODE
+        left join DW_NEWQUERY_SUBJECT on upper(t.BM) = SUBJECT_CODE
+        order by CON desc)
+        where rownum <![CDATA[<=]]> 4
     </select>
 
 </mapper>

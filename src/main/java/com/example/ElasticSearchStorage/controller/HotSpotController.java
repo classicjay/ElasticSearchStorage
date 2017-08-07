@@ -38,10 +38,17 @@ public class HotSpotController {
      * @return
      */
     @PostMapping("/titleList")
-    public String getHotSpot(@ApiParam("登录令牌，用户id")@RequestBody HashMap<String,Object> param, Model model){
+    public String getHotSpot(@ApiParam("用户id,登录令牌")@RequestBody HashMap<String,Object> param, Model model){
         HashMap<String,Object> dataMap = new HashMap<>();
         dataMap = elasticSearchService.getHotSpot(param);
         model.addAttribute("dataMap",dataMap);
         return "titleList";
+    }
+
+    @PostMapping("/recommendVisit")
+    public String getIntelligentRecommend(@ApiParam("用户id，登录令牌，搜索类型")@RequestBody HashMap<String,Object> param, Model model){
+        HashMap<String,Object> dataMap = new HashMap<>();
+        dataMap = elasticSearchService.getIntelligentRecommend(param);
+        return null;
     }
 }
