@@ -136,7 +136,8 @@
         '2'
         when 'thememonthcheck' then
         '2'
-        end MARKTYPE
+        end MARKTYPE,
+        'ORA' DATASOURCE
         from (select SPECIFICMARK BM, count(SPECIFICMARK) CON, MARKNAME
         from DM.DW30_ES_BASE_2
         where 1 = 1

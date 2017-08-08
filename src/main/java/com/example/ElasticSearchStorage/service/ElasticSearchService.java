@@ -4,6 +4,7 @@ import com.example.ElasticSearchStorage.mapper.ElasticSearchMapper;
 import com.example.ElasticSearchStorage.utils.DataFetch;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
 
@@ -26,6 +27,8 @@ public class ElasticSearchService {
     @Autowired
     DataFetch dataFetch;
 
+    @Autowired
+    private RestTemplate restTemplate;
     /**
      * 获取全部类型
      * @return
@@ -220,6 +223,21 @@ public class ElasticSearchService {
         loopAdd(blendList,alsList);
         loopAdd(blendList,depList);
         System.out.println("blendList为"+blendList);
+        String paramStr = new String();
+        for (HashMap<String,String> map:blendList){
+            String markType = map.get("MARKTYPE");
+            if (markType.equals("1")){
+                paramStr = "-1,-1,"+map.get("BM");
+                Object resObj = restTemplate.postForObject("http://DW3-NEWQUERY-HOMEPAGE-ZUUL-TEST/index/indexForHomepage/dataOfAllKpi",paramStr,Object.class);
+                System.out.println("指标Object为："+resObj);
+            }else if (markType.equals("2")){
+                paramStr = map.get("BM");
+                Object resObj = restTemplate.postForObject("http://DW3-NEWQUERY-HOMEPAGE-ZUUL-TEST/subject/specialForHomepage/icon",paramStr,Object.class);
+                System.out.println("专题Object为："+resObj);
+            }
+        }
+
+
         return null;
     }
 

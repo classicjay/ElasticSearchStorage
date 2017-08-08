@@ -246,9 +246,9 @@ public class DataFetch {
             JSONObject jsonObject = JSON.parseObject(hit.getSourceAsString());
             String code = jsonObject.get("Code").toString();
             HashMap<String,String> detailMap= getDetailList(code,codeIndex,client);
-            if (detailMap.get("identify").equals("K") && kpiList.size()<4){
+            if (detailMap.get("MARKTYPE").equals("1") && kpiList.size()<4){
                 kpiList.add(detailMap);
-            }else if (detailMap.get("identify").equals("T") && subList.size()<4){
+            }else if (detailMap.get("MARKTYPE").equals("2") && subList.size()<4){
                 subList.add(detailMap);
             }
             if (allList.size()<4){
@@ -284,18 +284,19 @@ public class DataFetch {
             String type = hit.getType();
             JSONObject jsonObject = JSON.parseObject(hit.getSourceAsString());
             if (type.equals("K")){
-                resultMap.put("identify","K");
-                resultMap.put("KPI_Code",jsonObject.getString("KPI_Code"));
+                resultMap.put("MARKTYPE","1");
+                resultMap.put("BM",jsonObject.getString("KPI_Code"));
                 resultMap.put("KPI_Name",jsonObject.getString("KPI_Name"));
                 resultMap.put("IS_MINUS",jsonObject.getString("IS_MINUS"));
                 resultMap.put("Acct_Type",jsonObject.getString("Acct_Type"));
 
             }else if (type.equals("T")){
-                resultMap.put("identify","T");
-                resultMap.put("Subject_Code",jsonObject.getString("Subject_Code"));
+                resultMap.put("MARKTYPE","2");
+                resultMap.put("BM",jsonObject.getString("Subject_Code"));
                 resultMap.put("Subject_Name",jsonObject.getString("Subject_Name"));
                 resultMap.put("Acct_Type",jsonObject.getString("Acct_Type"));
             }
+            resultMap.put("DATASOURCE","ALS");
         }
         return resultMap;
     }
