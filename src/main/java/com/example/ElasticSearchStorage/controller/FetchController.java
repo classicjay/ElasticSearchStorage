@@ -81,6 +81,7 @@ public class FetchController {
         String selectedId = param.get("selectedId").toString();
         String searchValue = param.get("searchValue").toString();
         String resultJSON = dataFetch.regSearch(client,selectedId,searchValue);
+        System.out.println("收到请求");
         return resultJSON;
     }
 
