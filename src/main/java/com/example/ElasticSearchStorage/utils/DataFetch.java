@@ -227,12 +227,84 @@ public class DataFetch {
     /**
      *
      */
-    public List<String> getEsSorted(TransportClient client, String userId, String selectId){
+    public HashMap<String,Object> getEsSorted(TransportClient client, String userId, String searchType){
         SearchResponse response = null;
-
-        return null;
-
+        String alsIndex = "als_predict";
+        String alsType = "als_type";
+        String codeIndex = "es_dw3.0_v2_is_minus_test";
+        response = client.prepareSearch(alsIndex)
+                .setTypes(alsType)
+                .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+                .addSort("Rating", SortOrder.DESC)//TODO 此处顺序还不对,字典序
+                .setQuery(QueryBuilders.matchQuery("UserID",userId))
+                .get();
+        SearchHits hits = response.getHits();
+        List<HashMap<String,String>> allList = new ArrayList<>();
+        List<HashMap<String,String>> kpiList = new ArrayList<>();
+        List<HashMap<String,String>> subList = new ArrayList<>();
+        for (SearchHit hit:hits){
+            JSONObject jsonObject = JSON.parseObject(hit.getSourceAsString());
+            String code = jsonObject.get("Code").toString();
+            HashMap<String,String> detailMap= getDetailList(code,codeIndex,client);
+            if (detailMap.get("identify").equals("K")){
+                while (kpiList.size()<4){
+                    kpiList.add(detailMap);
+                }
+            }else if (detailMap.get("identify").equals("T")){
+                while (subList.size()<4){
+                    subList.add(detailMap);
+                }
+            }
+            while (allList.size()<4){
+                allList.add(detailMap);
+            }
+        }
+        HashMap<String,Object> resultMap = new HashMap<>();
+        resultMap.put("all",allList);
+        resultMap.put("kpi",kpiList);
+        resultMap.put("sub",subList);
+        return resultMap;
     }
+
+    /**
+     * 根据指标或专题code到is_minus_test中进行全文匹配，得到对应指标或专题详细信息
+     * @param code
+     * @param codeIndex
+     * @param client
+     * @return
+     */
+    public HashMap<String,String> getDetailList(String code, String codeIndex, TransportClient client){
+        SearchResponse response = null;
+        response = client.prepareSearch(codeIndex)
+                .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+                .setQuery(QueryBuilders.boolQuery()
+                        .should(QueryBuilders.matchQuery("KPI_Code",code))
+                        .should(QueryBuilders.matchQuery("Subject_Code",code)))
+                .get();
+        SearchHits hits = response.getHits();
+        HashMap<String,String> resultMap = new HashMap<>();
+        if (null != hits && hits.getTotalHits()>0){
+            SearchHit hit = hits.getAt(0);
+            String type = hit.getType();
+            JSONObject jsonObject = JSON.parseObject(hit.getSourceAsString());
+            if (type.equals("K")){
+                resultMap.put("identify","K");
+                resultMap.put("KPI_Code",jsonObject.getString("KPI_Code"));
+                resultMap.put("KPI_Name",jsonObject.getString("KPI_Name"));
+                resultMap.put("IS_MINUS",jsonObject.getString("IS_MINUS"));
+                resultMap.put("Acct_Type",jsonObject.getString("Acct_Type"));
+
+            }else if (type.equals("T")){
+                resultMap.put("identify","T");
+                resultMap.put("Subject_Code",jsonObject.getString("Subject_Code"));
+                resultMap.put("Subject_Name",jsonObject.getString("Subject_Name"));
+                resultMap.put("Acct_Type",jsonObject.getString("Acct_Type"));
+            }
+        }
+        return resultMap;
+    }
+
+
 
 
     /**

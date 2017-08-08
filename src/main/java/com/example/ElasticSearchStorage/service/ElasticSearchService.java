@@ -1,10 +1,13 @@
 package com.example.ElasticSearchStorage.service;
 
 import com.example.ElasticSearchStorage.mapper.ElasticSearchMapper;
+import com.example.ElasticSearchStorage.utils.DataFetch;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+
+import static com.example.ElasticSearchStorage.ElasticSearchStorageApplication.client;
 
 /**
  * <p>Title: BONC -  ElasticSearchService</p>
@@ -19,6 +22,9 @@ import java.util.*;
 public class ElasticSearchService {
     @Autowired
     ElasticSearchMapper elasticSearchMapper;
+
+    @Autowired
+    DataFetch dataFetch;
 
     /**
      * 获取全部类型
@@ -134,8 +140,95 @@ public class ElasticSearchService {
     }
 
     public HashMap<String,Object> getIntelligentRecommend(HashMap<String,Object> paramMap){
-
+        //TODO
+        // 1.获取用户周记录数
+        // 2.获取用户所在部门的M和Q
+        // 3.比较M和Q
+        // 4.判断周记录数在哪个区间
+        // 5.按照比例进行组合，得到一个list<map>存放code
+        // 6.根据code通过post请求到指标或专题页进行取数
+        String userId = paramMap.get("userId").toString();
+        String searchType = paramMap.get("searchType").toString();
+        HashMap<String,Object> esResMap = new HashMap<>();
+        esResMap = dataFetch.getEsSorted(client,userId,searchType);
+        List<HashMap<String,String>> alsList = new ArrayList<>();
+        if (searchType.equals("999")){
+            alsList = (List<HashMap<String,String>>) esResMap.get("all");
+        }else if (searchType.equals("1")){
+            alsList = (List<HashMap<String,String>>) esResMap.get("kpi");
+        }else if (searchType.equals("2")){
+            alsList = (List<HashMap<String,String>>) esResMap.get("sub");
+        }
+        System.out.println("协同alsList为："+alsList);
+        HashMap<String,String> oneWeekCountMap = new HashMap<>();
+        HashMap<String,String> queryWeekMap = new HashMap<>();
+        queryWeekMap.put("userId",paramMap.get("userId").toString());
+        queryWeekMap.put("searchType",searchType);
+        oneWeekCountMap = elasticSearchMapper.getOneWeekLogCount(queryWeekMap);
+        long oneWeekCount = 0;
+        String deptId = new String();
+        if (null != oneWeekCountMap && !oneWeekCountMap.isEmpty()){
+            oneWeekCount = Long.parseLong(oneWeekCountMap.get("WEEKCOUNT"));
+            deptId = oneWeekCountMap.get("DEPTID");
+        }
+        HashMap<String,String> queryMQMap = new HashMap<>();
+        queryMQMap.put("deptId",deptId);
+        queryMQMap.put("searchType",searchType);
+        HashMap<String,String> mQMap = new HashMap<>();
+        mQMap = elasticSearchMapper.getMQ(queryMQMap);
+        //部门排序前四
+        List<HashMap<String,String>> depList = new ArrayList<>();
+        depList = elasticSearchMapper.getDepSorted(queryMQMap);
+        System.out.println("部门depList为："+depList);
+        long m = 0;
+        long q1 = 0;
+        long q2 = 0;
+        long q3 = 0;
+        if (null != mQMap && !mQMap.isEmpty()){
+            m = Long.parseLong(mQMap.get("M"));
+            q1 = Long.parseLong(mQMap.get("Q1"));
+            q2 = Long.parseLong(mQMap.get("Q2"));
+            q3 = Long.parseLong(mQMap.get("Q3"));
+        }
+        //存放4个code的list
+        List<HashMap<String,String>> blendList = new ArrayList<>();
+        if (oneWeekCount<m){//全部走部门排序
+//            blendList = depList;
+            alsList.subList(0,alsList.size()).clear();
+            depList.subList(4,depList.size()).clear();
+        }else if (oneWeekCount >= m && oneWeekCount < getMax(m,q1)){// 部门 1:3 协同
+            alsList.subList(1,alsList.size()).clear();
+            depList.subList(3,depList.size()).clear();
+        }else if (oneWeekCount >= getMax(m,q1) && oneWeekCount < getMax(m,q2)){
+            alsList.subList(2,alsList.size()).clear();
+            depList.subList(2,depList.size()).clear();
+        }else if (oneWeekCount >= getMax(m,q2) && oneWeekCount < getMax(m,q3)){
+            alsList.subList(3,alsList.size()).clear();
+            depList.subList(1,depList.size()).clear();
+        }else if (oneWeekCount >= getMax(m,q3)){
+            alsList.subList(4,alsList.size()).clear();
+            depList.subList(0,depList.size()).clear();
+        }
+        loopAdd(blendList,alsList);
+        loopAdd(blendList,depList);
+        System.out.println("blendList为"+blendList);
         return null;
+    }
+
+    private void loopAdd(List<HashMap<String,String>> blendList, List<HashMap<String,String>> loopList){
+        if (null != loopList && !loopList.isEmpty()){
+            for (HashMap<String,String> map:loopList){
+                blendList.add(map);
+            }
+        }
+    }
+
+    private long getMax(long num1,long num2){
+        if (num1 - num2 >0){
+            return num1;
+        }else{
+            return num2;
+        }
     }
 
     private List<HashMap<String,String>> processList(List<HashMap<String,String>> paramList){
