@@ -151,6 +151,7 @@ public class ElasticSearchService {
         String searchType = paramMap.get("searchType").toString();
         HashMap<String,Object> esResMap = new HashMap<>();
         esResMap = dataFetch.getEsSorted(client,userId,searchType);
+        System.out.println("esResMap为："+esResMap+"*****");
         List<HashMap<String,String>> alsList = new ArrayList<>();
         if (searchType.equals("999")){
             alsList = (List<HashMap<String,String>>) esResMap.get("all");
@@ -159,7 +160,7 @@ public class ElasticSearchService {
         }else if (searchType.equals("2")){
             alsList = (List<HashMap<String,String>>) esResMap.get("sub");
         }
-        System.out.println("协同alsList为："+alsList);
+        System.out.println("协同alsList为："+alsList+"*****");
         HashMap<String,String> oneWeekCountMap = new HashMap<>();
         HashMap<String,String> queryWeekMap = new HashMap<>();
         queryWeekMap.put("userId",paramMap.get("userId").toString());
@@ -168,8 +169,8 @@ public class ElasticSearchService {
         long oneWeekCount = 0;
         String deptId = new String();
         if (null != oneWeekCountMap && !oneWeekCountMap.isEmpty()){
-            oneWeekCount = Long.parseLong(oneWeekCountMap.get("WEEKCOUNT"));
-            deptId = oneWeekCountMap.get("DEPTID");
+            oneWeekCount = Long.parseLong(oneWeekCountMap.get("WEEKCOUNT").toString());
+            deptId = oneWeekCountMap.get("DEPTID").toString();
         }
         HashMap<String,String> queryMQMap = new HashMap<>();
         queryMQMap.put("deptId",deptId);
@@ -179,16 +180,16 @@ public class ElasticSearchService {
         //部门排序前四
         List<HashMap<String,String>> depList = new ArrayList<>();
         depList = elasticSearchMapper.getDepSorted(queryMQMap);
-        System.out.println("部门depList为："+depList);
+        System.out.println("部门depList为："+depList+"*****");
         long m = 0;
         long q1 = 0;
         long q2 = 0;
         long q3 = 0;
         if (null != mQMap && !mQMap.isEmpty()){
-            m = Long.parseLong(mQMap.get("M"));
-            q1 = Long.parseLong(mQMap.get("Q1"));
-            q2 = Long.parseLong(mQMap.get("Q2"));
-            q3 = Long.parseLong(mQMap.get("Q3"));
+            m = Long.parseLong(mQMap.get("M").toString());
+            q1 = Long.parseLong(mQMap.get("Q1").toString());
+            q2 = Long.parseLong(mQMap.get("Q2").toString());
+            q3 = Long.parseLong(mQMap.get("Q3").toString());
         }
         //存放4个code的list
         List<HashMap<String,String>> blendList = new ArrayList<>();

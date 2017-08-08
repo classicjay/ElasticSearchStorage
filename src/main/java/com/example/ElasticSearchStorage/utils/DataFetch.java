@@ -235,7 +235,7 @@ public class DataFetch {
         response = client.prepareSearch(alsIndex)
                 .setTypes(alsType)
                 .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
-                .addSort("Rating", SortOrder.DESC)//TODO 此处顺序还不对,字典序
+                .addSort("Rating", SortOrder.DESC)
                 .setQuery(QueryBuilders.matchQuery("UserID",userId))
                 .get();
         SearchHits hits = response.getHits();
@@ -246,16 +246,12 @@ public class DataFetch {
             JSONObject jsonObject = JSON.parseObject(hit.getSourceAsString());
             String code = jsonObject.get("Code").toString();
             HashMap<String,String> detailMap= getDetailList(code,codeIndex,client);
-            if (detailMap.get("identify").equals("K")){
-                while (kpiList.size()<4){
-                    kpiList.add(detailMap);
-                }
-            }else if (detailMap.get("identify").equals("T")){
-                while (subList.size()<4){
-                    subList.add(detailMap);
-                }
+            if (detailMap.get("identify").equals("K") && kpiList.size()<4){
+                kpiList.add(detailMap);
+            }else if (detailMap.get("identify").equals("T") && subList.size()<4){
+                subList.add(detailMap);
             }
-            while (allList.size()<4){
+            if (allList.size()<4){
                 allList.add(detailMap);
             }
         }
