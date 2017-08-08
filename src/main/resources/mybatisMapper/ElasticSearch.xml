@@ -106,7 +106,7 @@
         </if>
         <choose>
             <when test=' null != searchType and ""  != searchType and searchType == "999" '>
-                and INDEX_TYPE = 'all'
+                and INDEX_TYPE = 'ALL'
             </when>
             <when test=' null != searchType and ""  != searchType and searchType == "1" '>
                 and INDEX_TYPE = 'indexdetails'
