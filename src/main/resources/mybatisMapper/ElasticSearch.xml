@@ -119,6 +119,24 @@
 
     <!--根据部门id和类型获取部门排序结果,前四-->
     <select id="getDepSorted" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+        select BM,CON,MARKNAME,KSNAME,MARKTYPE,DATASOURCE,IS_MINUS,
+        case ACCT_TYPE
+        when 'D' then
+        '1'
+        when 'M' then
+        '2'
+        else
+        ACCT_TYPE
+        end ACCT_TYPE,
+        case UNIT
+        when '%' then
+        '1'
+        when '-' then
+        '-'
+        else
+        '0'
+        end IS_PERCENTAGE
+        from (
         select * from (
         select upper(BM) BM,CON,MARKNAME,
         case MARKNAME
@@ -137,7 +155,31 @@
         when 'thememonthcheck' then
         '2'
         end MARKTYPE,
-        'ORA' DATASOURCE
+        'ORA' DATASOURCE,
+        case MARKNAME
+        when 'indexdetails' then
+        IS_MINUS
+        when 'specialreport' then
+        '-'
+        when 'thememonthcheck' then
+        '-'
+        end IS_MINUS,
+        case MARKNAME
+        when 'indexdetails' then
+        k.LABEL_TYPE
+        when 'specialreport' then
+        s.LABEL_TYPE
+        when 'thememonthcheck' then
+        s.LABEL_TYPE
+        end ACCT_TYPE,
+        case MARKNAME
+        when 'indexdetails' then
+        UNIT
+        when 'specialreport' then
+        '-'
+        when 'thememonthcheck' then
+        '-'
+        end UNIT
         from (select SPECIFICMARK BM, count(SPECIFICMARK) CON, MARKNAME
         from DM.DW30_ES_BASE_2
         where 1 = 1
@@ -157,10 +199,10 @@
         </if>
         group by SPECIFICMARK, MARKNAME
         order by CON desc) t
-        left join DMCODE_PUB.DMCODE_COMP_KPI_MAPPING on upper(t.BM) = KPI_CODE
-        left join DW_NEWQUERY_SUBJECT on upper(t.BM) = SUBJECT_CODE
+        left join DMCODE_PUB.DMCODE_COMP_KPI_MAPPING k on upper(t.BM) = KPI_CODE
+        left join DW_NEWQUERY_SUBJECT s on upper(t.BM) = SUBJECT_CODE
         order by CON desc)
-        where rownum <![CDATA[<=]]> 4
+        where rownum <![CDATA[<=]]> 4 )
     </select>
 
 </mapper>
