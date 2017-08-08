@@ -57,9 +57,9 @@ public interface ElasticSearchMapper {
 
     public List<HashMap<String,String>> getSubjectSortedData();
 
-    public HashMap<String,String> getOneWeekLogCount(HashMap<String,String> paramMap);
+    public HashMap<String,Object> getOneWeekLogCount(HashMap<String,String> paramMap);
 
-    public HashMap<String,String> getMQ(HashMap<String,String> paramMap);
+    public HashMap<String,Object> getMQ(HashMap<String,String> paramMap);
 
     public List<HashMap<String,String>> getDepSorted(HashMap<String,String> paramMap);
 }

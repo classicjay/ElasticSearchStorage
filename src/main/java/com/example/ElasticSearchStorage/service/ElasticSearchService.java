@@ -161,7 +161,7 @@ public class ElasticSearchService {
             alsList = (List<HashMap<String,String>>) esResMap.get("sub");
         }
         System.out.println("协同alsList为："+alsList+"*****");
-        HashMap<String,String> oneWeekCountMap = new HashMap<>();
+        HashMap<String,Object> oneWeekCountMap = new HashMap<>();
         HashMap<String,String> queryWeekMap = new HashMap<>();
         queryWeekMap.put("userId",paramMap.get("userId").toString());
         queryWeekMap.put("searchType",searchType);
@@ -175,7 +175,7 @@ public class ElasticSearchService {
         HashMap<String,String> queryMQMap = new HashMap<>();
         queryMQMap.put("deptId",deptId);
         queryMQMap.put("searchType",searchType);
-        HashMap<String,String> mQMap = new HashMap<>();
+        HashMap<String,Object> mQMap = new HashMap<>();
         mQMap = elasticSearchMapper.getMQ(queryMQMap);
         //部门排序前四
         List<HashMap<String,String>> depList = new ArrayList<>();
