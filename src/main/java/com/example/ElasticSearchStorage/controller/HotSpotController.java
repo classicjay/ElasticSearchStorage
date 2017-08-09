@@ -11,7 +11,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * <p>Title: BONC -  HotSpotController</p>
@@ -47,8 +49,9 @@ public class HotSpotController {
 
     @PostMapping("/recommendVisit")
     public String getIntelligentRecommend(@ApiParam("用户id，登录令牌，搜索类型")@RequestBody HashMap<String,Object> param, Model model){
-        HashMap<String,Object> dataMap = new HashMap<>();
-        dataMap = elasticSearchService.getIntelligentRecommend(param);
-        return null;
+        List<HashMap<String,Object>> dataList = new ArrayList<>();
+        dataList = elasticSearchService.getIntelligentRecommend(param);
+        model.addAttribute("dataList",dataList);
+        return "recommendVisit";
     }
 }

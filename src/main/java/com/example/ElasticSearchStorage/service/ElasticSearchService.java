@@ -142,8 +142,7 @@ public class ElasticSearchService {
         return resultMap;
     }
 
-    public HashMap<String,Object> getIntelligentRecommend(HashMap<String,Object> paramMap){
-        //TODO
+    public List<HashMap<String,Object>> getIntelligentRecommend(HashMap<String,Object> paramMap){
         // 1.获取用户周记录数
         // 2.获取用户所在部门的M和Q
         // 3.比较M和Q
@@ -154,7 +153,6 @@ public class ElasticSearchService {
         String searchType = paramMap.get("searchType").toString();
         HashMap<String,Object> esResMap = new HashMap<>();
         esResMap = dataFetch.getEsSorted(client,userId,searchType);
-        System.out.println("esResMap为："+esResMap+"*****");
         List<HashMap<String,String>> alsList = new ArrayList<>();
         if (searchType.equals("999")){
             alsList = (List<HashMap<String,String>>) esResMap.get("all");
@@ -231,7 +229,6 @@ public class ElasticSearchService {
             if (markType.equals("1")){
                 paramStr = "-1,-1,"+map.get("BM");
                 HashMap<String,Object> resMap = (HashMap<String, Object>) restTemplate.postForObject("http://DW3-NEWQUERY-HOMEPAGE-ZUUL-TEST/index/indexForHomepage/dataOfAllKpi",paramStr,Object.class);
-                System.out.println("指标Object为："+resMap);
                 HashMap<String,Object> sigMap = new HashMap<>();
                 HashMap<String,Object> detailMap = new HashMap<>();
                 detailMap.put("date",resMap.get("date").toString());
@@ -251,7 +248,6 @@ public class ElasticSearchService {
             }else if (markType.equals("2")){
                 paramStr = map.get("BM");
                 HashMap<String,Object> resMap = (HashMap<String, Object>) restTemplate.postForObject("http://DW3-NEWQUERY-HOMEPAGE-ZUUL-TEST/subject/specialForHomepage/icon",paramStr,Object.class);
-                System.out.println("专题Object为："+resMap);
                 HashMap<String,Object> sigMap = new HashMap<>();
                 HashMap<String,Object> detailMap = new HashMap<>();
                 sigMap.put("ord",String.valueOf(i+1));
@@ -265,13 +261,11 @@ public class ElasticSearchService {
                 sigMap.put("data",detailMap);
                 dataList.add(sigMap);
             }
-
         }
         System.out.println("<<<<<<<<<<<<<<<<<<<dataList为："+dataList+">>>>>>>>>>>>>>>>>>>>");
-
-
-
-        return null;
+//        HashMap<String,Object> finalMap = new HashMap<>();
+//        finalMap.put("data",dataList);
+        return dataList;
     }
 
     private void loopAdd(List<HashMap<String,String>> blendList, List<HashMap<String,String>> loopList){
