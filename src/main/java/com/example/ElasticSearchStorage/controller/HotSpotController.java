@@ -1,5 +1,6 @@
 package com.example.ElasticSearchStorage.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.example.ElasticSearchStorage.service.ElasticSearchService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
@@ -47,11 +48,5 @@ public class HotSpotController {
         return "titleList";
     }
 
-    @PostMapping("/recommendVisit")
-    public String getIntelligentRecommend(@ApiParam("用户id，登录令牌，搜索类型")@RequestBody HashMap<String,Object> param, Model model){
-        List<HashMap<String,Object>> dataList = new ArrayList<>();
-        dataList = elasticSearchService.getIntelligentRecommend(param);
-        model.addAttribute("dataList",dataList);
-        return "recommendVisit";
-    }
+
 }

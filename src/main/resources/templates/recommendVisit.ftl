@@ -10,7 +10,7 @@
                 "isMinus":"${data.isMinus!'-'}",
                 "isPercentage":"${data.isPercentage!'-'}",
                 "url":"${data.url!'-'}",
-                "data":${data.data}
+                "data":${data.data}//TODO
             }
             <#elseif "${data.markType}" == "2">
             {
@@ -18,7 +18,17 @@
                 "id":"${data.id!'-'}",
                 "url":"${data.url!'-'}",
                 "markType":"${data.markType!'-'}",
-                "data":${data.data}
+                "data":<#if data.data??>
+                {
+                    "date":"${data.data.date!'-'}",
+                    "dayOrMonth":"${data.data.dayOrMonth!'-'}",
+                    "markName":"${data.data.markName!'-'}",
+                    "chartType":"${data.data.chartType!'-'}",
+                    "title":"${data.data.title!'-'}",
+                    "chart"://TODO
+                }
+
+                ${data.data}
             }
             </#if>
             <#if data_has_next>,</#if>

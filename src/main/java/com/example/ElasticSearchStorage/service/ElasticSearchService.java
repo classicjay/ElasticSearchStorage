@@ -263,8 +263,6 @@ public class ElasticSearchService {
             }
         }
         System.out.println("<<<<<<<<<<<<<<<<<<<dataList为："+dataList+">>>>>>>>>>>>>>>>>>>>");
-//        HashMap<String,Object> finalMap = new HashMap<>();
-//        finalMap.put("data",dataList);
         return dataList;
     }
 

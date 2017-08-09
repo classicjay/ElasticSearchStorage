@@ -8,6 +8,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -83,6 +84,23 @@ public class FetchController {
         String resultJSON = dataFetch.regSearch(client,selectedId,searchValue);
         System.out.println("******"+"收到请求"+"******");
         return resultJSON;
+    }
+
+
+
+
+    @PostMapping("/recommendVisit")
+    public String getIntelligentRecommend(@ApiParam("用户id，登录令牌，搜索类型")@RequestBody HashMap<String,Object> param, Model model){
+        List<HashMap<String,Object>> dataList = new ArrayList<>();
+        dataList = elasticSearchService.getIntelligentRecommend(param);
+//        model.addAttribute("dataList",dataList);
+//        return "recommendVisit";
+        HashMap<String,Object> finalMap = new HashMap<>();
+        if (!dataList.isEmpty()){
+            finalMap.put("data",dataList);
+        }
+        String resultJson = JSON.toJSONString(finalMap);
+        return resultJson;
     }
 
 
