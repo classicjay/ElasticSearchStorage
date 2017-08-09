@@ -12,7 +12,7 @@
                 "url":"${data.url!'-'}",
                 "data":${data.data}
             }
-            <#if "${data.markType}" == "2">
+            <#elseif "${data.markType}" == "2">
             {
                 "ord":"${data.ord!'-'}",
                 "id":"${data.id!'-'}",
