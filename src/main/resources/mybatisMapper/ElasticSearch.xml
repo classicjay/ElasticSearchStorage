@@ -209,7 +209,7 @@
         left join DMCODE_PUB.DMCODE_COMP_KPI_MAPPING k on upper(t.BM) = KPI_CODE
         left join DW_NEWQUERY_SUBJECT s on upper(t.BM) = SUBJECT_CODE
         order by CON desc)
-        where rownum <![CDATA[<=]]> 4 )
+        where rownum <![CDATA[<=]]> 8 )
     </select>
 
 </mapper>

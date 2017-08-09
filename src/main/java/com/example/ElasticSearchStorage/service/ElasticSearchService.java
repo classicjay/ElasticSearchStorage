@@ -196,8 +196,8 @@ public class ElasticSearchService {
         List<HashMap<String,String>> blendList = new ArrayList<>();
         System.out.println("一周总记录数"+oneWeekCount+"***");
         System.out.println("M值"+m+"***");
+        removeRepeat(alsList,depList);
         if (oneWeekCount<m){//全部走部门排序
-//            blendList = depList;
             alsList.subList(0,alsList.size()).clear();
             depList.subList(4,depList.size()).clear();
             System.out.println("协同和部门混合比例："+"0:4");
@@ -321,6 +321,20 @@ public class ElasticSearchService {
                     if (sigMap.get("BM").equals(auth)){
                         iterator.remove();
                     }
+                }
+            }
+        }
+    }
+
+    private void removeRepeat(List<HashMap<String,String>> alsList,List<HashMap<String,String>> depList){
+        Iterator<HashMap<String,String>> iterator = depList.iterator();
+        while (iterator.hasNext()){
+            HashMap<String,String> depMap = iterator.next();
+            String depBM = depMap.get("BM");
+            for (HashMap<String,String> alsMap:alsList){
+                String alsBM = alsMap.get("BM");
+                if (depBM.equals(alsBM)){
+                    iterator.remove();
                 }
             }
         }
