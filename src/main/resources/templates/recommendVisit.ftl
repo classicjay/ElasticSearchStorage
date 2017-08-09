@@ -2,7 +2,7 @@
 "data":[
     <#if dataList?? && (dataList?size>0)>
         <#list dataList as data>
-            <#if ${data.markType} == "1">
+            <#if "${data.markType}" == "1">
             {
                 "ord":"${data.ord!'-'}",
                 "markType":"${data.markType!'-'}",
@@ -12,7 +12,7 @@
                 "url":"${data.url!'-'}",
                 "data":${data.data}
             }
-            <#if ${data.markType} == "2">
+            <#if "${data.markType}" == "2">
             {
                 "ord":"${data.ord!'-'}",
                 "id":"${data.id!'-'}",
