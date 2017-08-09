@@ -224,18 +224,51 @@ public class ElasticSearchService {
         loopAdd(blendList,depList);
         System.out.println("blendList为"+blendList);
         String paramStr = new String();
-        for (HashMap<String,String> map:blendList){
+        List<HashMap<String,Object>> dataList = new ArrayList<>();
+        for (int i=0;i<blendList.size();i++){
+            HashMap<String,String> map = blendList.get(i);
             String markType = map.get("MARKTYPE");
             if (markType.equals("1")){
                 paramStr = "-1,-1,"+map.get("BM");
-                Object resObj = restTemplate.postForObject("http://DW3-NEWQUERY-HOMEPAGE-ZUUL-TEST/index/indexForHomepage/dataOfAllKpi",paramStr,Object.class);
-                System.out.println("指标Object为："+resObj);
+                HashMap<String,Object> resMap = (HashMap<String, Object>) restTemplate.postForObject("http://DW3-NEWQUERY-HOMEPAGE-ZUUL-TEST/index/indexForHomepage/dataOfAllKpi",paramStr,Object.class);
+                System.out.println("指标Object为："+resMap);
+                HashMap<String,Object> sigMap = new HashMap<>();
+                HashMap<String,Object> detailMap = new HashMap<>();
+                detailMap.put("date",resMap.get("date").toString());
+                detailMap.put("dayOrMonth",map.get("ACCT_TYPE"));
+                detailMap.put("markName","指标");
+                detailMap.put("chartType",resMap.get("chartType").toString());
+                detailMap.put("title",map.get("KSNAME"));
+                detailMap.put("chart",resMap.get("chart"));
+                sigMap.put("ord",String.valueOf(i+1));
+                sigMap.put("markType","1");
+                sigMap.put("id",map.get("BM"));
+                sigMap.put("isMinus",map.get("IS_MINUS"));
+                sigMap.put("isPercentage",map.get("IS_PERCENTAGE"));
+                sigMap.put("url","/indexDetails");
+                sigMap.put("data",detailMap);
+                dataList.add(sigMap);
             }else if (markType.equals("2")){
                 paramStr = map.get("BM");
-                Object resObj = restTemplate.postForObject("http://DW3-NEWQUERY-HOMEPAGE-ZUUL-TEST/subject/specialForHomepage/icon",paramStr,Object.class);
-                System.out.println("专题Object为："+resObj);
+                HashMap<String,Object> resMap = (HashMap<String, Object>) restTemplate.postForObject("http://DW3-NEWQUERY-HOMEPAGE-ZUUL-TEST/subject/specialForHomepage/icon",paramStr,Object.class);
+                System.out.println("专题Object为："+resMap);
+                HashMap<String,Object> sigMap = new HashMap<>();
+                HashMap<String,Object> detailMap = new HashMap<>();
+                sigMap.put("ord",String.valueOf(i+1));
+                sigMap.put("id",map.get("BM"));
+                sigMap.put("url",resMap.get("url").toString());
+                sigMap.put("markType","2");
+                detailMap.put("tabName",map.get("ACCT_TYPE"));
+                detailMap.put("title",map.get("KSNAME"));
+                detailMap.put("type","专题");
+                detailMap.put("src",resMap.get("src").toString());
+                sigMap.put("data",detailMap);
+                dataList.add(sigMap);
             }
+
         }
+        System.out.println("<<<<<<<<<<<<<<<<<<<dataList为："+dataList+">>>>>>>>>>>>>>>>>>>>");
+
 
 
         return null;

@@ -286,15 +286,16 @@ public class DataFetch {
             if (type.equals("K")){
                 resultMap.put("MARKTYPE","1");
                 resultMap.put("BM",jsonObject.getString("KPI_Code"));
-                resultMap.put("KPI_Name",jsonObject.getString("KPI_Name"));
+                resultMap.put("KSNAME",jsonObject.getString("KPI_Name"));
                 resultMap.put("IS_MINUS",jsonObject.getString("IS_MINUS"));
-                resultMap.put("Acct_Type",jsonObject.getString("Acct_Type"));
-
+                resultMap.put("ACCT_TYPE",jsonObject.getString("Acct_Type"));
+                resultMap.put("MARKNAME","/indexDetails");
             }else if (type.equals("T")){
                 resultMap.put("MARKTYPE","2");
                 resultMap.put("BM",jsonObject.getString("Subject_Code"));
-                resultMap.put("Subject_Name",jsonObject.getString("Subject_Name"));
-                resultMap.put("Acct_Type",jsonObject.getString("Acct_Type"));
+                resultMap.put("KSNAME",jsonObject.getString("Subject_Name"));
+                resultMap.put("ACCT_TYPE",jsonObject.getString("Acct_Type"));
+                resultMap.put("MARKNAME",jsonObject.getString("MARKNAME"));//完整格式，/themeMonthCheck
             }
             resultMap.put("DATASOURCE","ALS");
         }

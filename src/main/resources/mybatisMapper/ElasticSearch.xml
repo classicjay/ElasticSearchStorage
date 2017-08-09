@@ -122,11 +122,14 @@
         select BM,CON,MARKNAME,KSNAME,MARKTYPE,DATASOURCE,IS_MINUS,
         case ACCT_TYPE
         when 'D' then
-        '1'
+        '日报'
         when 'M' then
-        '2'
-        else
-        ACCT_TYPE
+        '月报'
+        when '1' then
+        '日报'
+        when '2' then
+        '月报'
+        else ACCT_TYPE
         end ACCT_TYPE,
         case UNIT
         when '%' then
