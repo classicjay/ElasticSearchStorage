@@ -196,21 +196,23 @@ public class ElasticSearchService {
         List<HashMap<String,String>> blendList = new ArrayList<>();
         System.out.println("一周总记录数"+oneWeekCount+"***");
         System.out.println("M值"+m+"***");
-        removeRepeat(alsList,depList);
         if (oneWeekCount<m){//全部走部门排序
             alsList.subList(0,alsList.size()).clear();
             depList.subList(4,depList.size()).clear();
             System.out.println("协同和部门混合比例："+"0:4");
         }else if (oneWeekCount >= m && oneWeekCount < getMax(m,q1)){
             alsList.subList(1,alsList.size()).clear();
+            removeRepeat(alsList,depList);
             depList.subList(3,depList.size()).clear();
             System.out.println("协同和部门混合比例："+"1:3");
         }else if (oneWeekCount >= getMax(m,q1) && oneWeekCount < getMax(m,q2)){
             alsList.subList(2,alsList.size()).clear();
+            removeRepeat(alsList,depList);
             depList.subList(2,depList.size()).clear();
             System.out.println("协同和部门混合比例："+"2:2");
         }else if (oneWeekCount >= getMax(m,q2) && oneWeekCount < getMax(m,q3)){
             alsList.subList(3,alsList.size()).clear();
+            removeRepeat(alsList,depList);
             depList.subList(1,depList.size()).clear();
             System.out.println("协同和部门混合比例："+"3:1");
         }else if (oneWeekCount >= getMax(m,q3)){
