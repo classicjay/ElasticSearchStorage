@@ -53,7 +53,7 @@
         from DM.MANU_BOOSTING_CODE where MARKNAME in ('indexdetails')
         UNION ALL
         select SPECIFICMARK BM,0 LY,0 VALAUS,count(SPECIFICMARK) CON,MARKNAME
-        from DM.DW30_ES_BASE_2 where MARKNAME in ('indexdetails')
+        from DM.DW3_ES_BASE_2 where MARKNAME in ('indexdetails')
         group by SPECIFICMARK, MARKNAME) T
         order by LY desc, VALAUS desc, CON desc)
         WHERE RN = 1 )k left join DMCODE_PUB.DMCODE_COMP_KPI_MAPPING j on upper(k.BM)=j.KPI_CODE
@@ -69,7 +69,7 @@
         from DM.MANU_BOOSTING_CODE where MARKNAME in ('specialreport','thememonthcheck')
         UNION ALL
         select SPECIFICMARK BM,0 LY,0 VALAUS,count(SPECIFICMARK) CON,MARKNAME
-        from DM.DW30_ES_BASE_2 where MARKNAME in ('specialreport','thememonthcheck')
+        from DM.DW3_ES_BASE_2 where MARKNAME in ('specialreport','thememonthcheck')
         group by SPECIFICMARK, MARKNAME) T
         order by LY desc, VALAUS desc, CON desc)
         WHERE RN = 1) k left join DW_NEWQUERY_SUBJECT j on upper(k.BM)=j.SUBJECT_CODE
@@ -78,9 +78,9 @@
 
     <!--单用户指定类型一周日志总数和部门编号-->
     <select id="getOneWeekLogCount" parameterType="java.util.HashMap" resultType="java.util.HashMap">
-        select count(SPECIFICMARK) WEEKCOUNT,DEPTID from DM.DW30_ES_BASE_2
-        where CLICKDATE between (select max(CLICKDATE) from DM.DW30_ES_BASE_2) - 6 and
-        (select max(CLICKDATE) from DM.DW30_ES_BASE_2)
+        select count(SPECIFICMARK) WEEKCOUNT,DEPTID from DM.DW3_ES_BASE_2
+        where CLICKDATE between (select max(CLICKDATE) from DM.DW3_ES_BASE_2) - 6 and
+        (select max(CLICKDATE) from DM.DW3_ES_BASE_2)
         <if test="null != userId and '' != userId">
             and USERID=#{userId}
         </if>
@@ -186,8 +186,8 @@
         from (select SPECIFICMARK BM, count(SPECIFICMARK) CON, MARKNAME
         from
         (SELECT b.* FROM
-        ( SELECT MAX(TIMESTAMPS) TIMESTAMPS FROM DM.DW3_MISSION_UPDATE WHERE DATA_NAME LIKE 'dw30_es_base_2' and data_type = 0) a,
-        ( SELECT * FROM DM.DW30_ES_BASE_2 ) b
+        ( SELECT MAX(TIMESTAMPS) TIMESTAMPS FROM DM.DW3_MISSION_UPDATE WHERE DATA_NAME LIKE 'dw3_es_base_2' and data_type = 0) a,
+        ( SELECT * FROM DM.DW3_ES_BASE_2 ) b
         where a.TIMESTAMPS = b.UPDATE_TIME)
         where 1 = 1
         <choose>
