@@ -243,8 +243,14 @@ public class ElasticSearchService {
                 HashMap<String,Object> sigMap = new HashMap<>();
                 HashMap<String,Object> detailMap = new HashMap<>();
                 maxDayDate = elasticSearchMapper.getMaxDayDate(map.get("BM"));
-                maxDayDate= maxDayDate.replace("-", "");
-                String date=maxDayDate.substring(0,4)+"年"+maxDayDate.substring(4,6)+"月"+maxDayDate.substring(6,8)+"日";
+                String date = new String();
+                //TODO
+                if (null != maxDayDate && !"".equals(maxDayDate)){
+                    maxDayDate= maxDayDate.replace("-", "");
+                    date=maxDayDate.substring(0,4)+"年"+maxDayDate.substring(4,6)+"月"+maxDayDate.substring(6,8)+"日";
+                }else {
+                    date = "-";
+                }
 //                detailMap.put("date",resMap.get("date").toString());
                 detailMap.put("date",date);
                 detailMap.put("dayOrMonth",map.get("ACCT_TYPE"));
