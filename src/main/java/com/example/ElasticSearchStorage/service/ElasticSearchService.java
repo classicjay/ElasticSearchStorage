@@ -244,30 +244,31 @@ public class ElasticSearchService {
                 detailMap.put("date",resMap.get("date").toString());
                 detailMap.put("dayOrMonth",map.get("ACCT_TYPE"));
                 detailMap.put("markName","指标");
-                detailMap.put("chartType",resMap.get("chartType").toString());
+//                detailMap.put("chartType",resMap.get("chartType").toString());
                 detailMap.put("title",map.get("KSNAME"));
-                detailMap.put("chart",resMap.get("chart"));
+//                detailMap.put("chart",resMap.get("chart"));
                 sigMap.put("ord",String.valueOf(i+1));
                 sigMap.put("markType","1");
                 sigMap.put("id",map.get("BM"));
-                sigMap.put("isMinus",map.get("IS_MINUS"));
-                sigMap.put("isPercentage",map.get("IS_PERCENTAGE"));
+//                sigMap.put("isMinus",map.get("IS_MINUS"));
+//                sigMap.put("isPercentage",map.get("IS_PERCENTAGE"));
                 sigMap.put("url","/indexDetails");
                 sigMap.put("data",detailMap);
                 dataList.add(sigMap);
             }else if (markType.equals("2")){
                 paramStr = map.get("BM");
-                HashMap<String,Object> resMap = (HashMap<String, Object>) restTemplate.postForObject("http://DW3-NEWQUERY-HOMEPAGE-ZUUL-TEST/subject/specialForHomepage/icon",paramStr,Object.class);
+//                HashMap<String,Object> resMap = (HashMap<String, Object>) restTemplate.postForObject("http://DW3-NEWQUERY-HOMEPAGE-ZUUL-TEST/subject/specialForHomepage/icon",paramStr,Object.class);
                 HashMap<String,Object> sigMap = new HashMap<>();
                 HashMap<String,Object> detailMap = new HashMap<>();
                 sigMap.put("ord",String.valueOf(i+1));
                 sigMap.put("id",map.get("BM"));
-                sigMap.put("url",resMap.get("url").toString());
+//                sigMap.put("url",resMap.get("url").toString());
+                sigMap.put("url",map.get("MARKNAME"));
                 sigMap.put("markType","2");
                 detailMap.put("tabName",map.get("ACCT_TYPE"));
                 detailMap.put("title",map.get("KSNAME"));
                 detailMap.put("type","专题");
-                detailMap.put("src",resMap.get("src").toString());
+//                detailMap.put("src",resMap.get("src").toString());
                 sigMap.put("data",detailMap);
                 dataList.add(sigMap);
             }

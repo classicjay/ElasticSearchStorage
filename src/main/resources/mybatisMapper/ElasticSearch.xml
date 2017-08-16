@@ -122,13 +122,13 @@
         select BM,CON,MARKNAME,KSNAME,MARKTYPE,DATASOURCE,IS_MINUS,
         case ACCT_TYPE
         when 'D' then
-        '日报'
+        '日'
         when 'M' then
-        '月报'
+        '月'
         when '1' then
-        '日报'
+        '日'
         when '2' then
-        '月报'
+        '月'
         else ACCT_TYPE
         end ACCT_TYPE,
         case UNIT
