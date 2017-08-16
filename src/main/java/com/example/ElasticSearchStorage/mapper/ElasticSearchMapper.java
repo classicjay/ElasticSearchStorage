@@ -62,4 +62,9 @@ public interface ElasticSearchMapper {
     public HashMap<String,Object> getMQ(HashMap<String,String> paramMap);
 
     public List<HashMap<String,String>> getDepSorted(HashMap<String,String> paramMap);
+
+    public String getMaxDayDate(@Param(value = "kpiCode") String kpiCode);
+
+    public String getMaxMonthDate(@Param(value = "kpiCode") String kpiCode);
+
 }

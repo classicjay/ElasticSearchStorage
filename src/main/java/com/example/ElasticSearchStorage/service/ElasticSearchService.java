@@ -233,15 +233,20 @@ public class ElasticSearchService {
         System.out.println("blendList为"+blendList);
         String paramStr = new String();
         List<HashMap<String,Object>> dataList = new ArrayList<>();
+        String maxDayDate = new String();
         for (int i=0;i<blendList.size();i++){
             HashMap<String,String> map = blendList.get(i);
             String markType = map.get("MARKTYPE");
             if (markType.equals("1")){
                 paramStr = "-1,-1,"+map.get("BM");
-                HashMap<String,Object> resMap = (HashMap<String, Object>) restTemplate.postForObject("http://DW3-NEWQUERY-HOMEPAGE-ZUUL-TEST/index/indexForHomepage/dataOfAllKpi",paramStr,Object.class);
+//                HashMap<String,Object> resMap = (HashMap<String, Object>) restTemplate.postForObject("http://DW3-NEWQUERY-HOMEPAGE-ZUUL-TEST/index/indexForHomepage/dataOfAllKpi",paramStr,Object.class);
                 HashMap<String,Object> sigMap = new HashMap<>();
                 HashMap<String,Object> detailMap = new HashMap<>();
-                detailMap.put("date",resMap.get("date").toString());
+                maxDayDate = elasticSearchMapper.getMaxDayDate(map.get("BM"));
+                maxDayDate= maxDayDate.replace("-", "");
+                String date=maxDayDate.substring(0,4)+"年"+maxDayDate.substring(4,6)+"月"+maxDayDate.substring(6,8)+"日";
+//                detailMap.put("date",resMap.get("date").toString());
+                detailMap.put("date",date);
                 detailMap.put("dayOrMonth",map.get("ACCT_TYPE"));
                 detailMap.put("markName","指标");
 //                detailMap.put("chartType",resMap.get("chartType").toString());

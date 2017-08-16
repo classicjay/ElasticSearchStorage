@@ -212,4 +212,22 @@
         where rownum <![CDATA[<=]]> 8 )
     </select>
 
+    <!--  最大日账期 -->
+    <select id="getMaxDayDate" parameterType="java.lang.String" resultType="java.lang.String">
+        select distinct to_char(to_date(max(d.ACCT_DATE), 'yyyymmdd'), 'yyyy-mm-dd') MAX_DATE
+        from DM.V_DM_KPI_D_001001 d where 1 = 1
+        <if test="null != kpiCode and '' != kpiCode ">
+            and d.KPI_CODE = #{kpiCode}
+        </if>
+    </select>
+
+    <!--  最大月账期 -->
+    <select id="getMaxMonthDate" parameterType="java.lang.String" resultType="java.lang.String">
+        select distinct to_char(to_date(max(m.MONTH_ID), 'yyyymm'), 'yyyy-mm') MAX_DATE
+        from DM.V_DM_KPI_DATA_GJ_MONTH m where 1 = 1
+        <if test="null != kpiCode and '' != kpiCode ">
+            and m.KPI_CODE = #{kpiCode}
+        </if>
+    </select>
+
 </mapper>
