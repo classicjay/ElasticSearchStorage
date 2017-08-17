@@ -92,7 +92,9 @@ public class FetchController {
     @PostMapping("/recommendVisit")
     public String getIntelligentRecommend(@ApiParam("用户id，登录令牌，搜索类型")@RequestBody HashMap<String,Object> param, Model model){
         List<HashMap<String,Object>> dataList = new ArrayList<>();
-        dataList = elasticSearchService.getIntelligentRecommend(param);
+        if (!param.get("searchType").toString().equals("3")){
+            dataList = elasticSearchService.getIntelligentRecommend(param);
+        }
 //        model.addAttribute("dataList",dataList);
 //        return "recommendVisit";
         HashMap<String,Object> finalMap = new HashMap<>();
