@@ -247,6 +247,9 @@ public class DataFetch {
             JSONObject jsonObject = JSON.parseObject(hit.getSourceAsString());
             String code = jsonObject.get("Code").toString();
             HashMap<String,String> detailMap= getDetailList(code,codeIndex,client);
+            if (null == detailMap || detailMap.isEmpty()){
+                continue;
+            }
             if (detailMap.get("MARKTYPE").equals("1") && kpiList.size()<4){
                 kpiList.add(detailMap);
             }else if (detailMap.get("MARKTYPE").equals("2") && subList.size()<4){
