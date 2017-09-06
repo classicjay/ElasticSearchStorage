@@ -163,18 +163,21 @@ public class ElasticSearchService {
         }
         System.out.println("协同alsList为："+alsList+"*****");
         HashMap<String,Object> oneWeekCountMap = new HashMap<>();
+        HashMap<String,Object> userDeptProv = new HashMap<>();
         HashMap<String,String> queryWeekMap = new HashMap<>();
-        queryWeekMap.put("userId",paramMap.get("userId").toString());
+        queryWeekMap.put("userId",userId);
         queryWeekMap.put("searchType",searchType);
         oneWeekCountMap = elasticSearchMapper.getOneWeekLogCount(queryWeekMap);
+        userDeptProv = elasticSearchMapper.getDeptProv(userId);
         long oneWeekCount = 0;
-        String deptId = new String();
+        String deptId = userDeptProv.get("DEPTID").toString();
+        String provId = userDeptProv.get("PROV_ID").toString();
         if (null != oneWeekCountMap && !oneWeekCountMap.isEmpty()){
             oneWeekCount = Long.parseLong(oneWeekCountMap.get("WEEKCOUNT").toString());
-            deptId = oneWeekCountMap.get("DEPTID").toString();
         }
         HashMap<String,String> queryMQMap = new HashMap<>();
         queryMQMap.put("deptId",deptId);
+        queryMQMap.put("provId",provId);
         queryMQMap.put("searchType",searchType);
         HashMap<String,Object> mQMap = new HashMap<>();
         mQMap = elasticSearchMapper.getMQ(queryMQMap);
@@ -186,88 +189,105 @@ public class ElasticSearchService {
         long q1 = 0;
         long q2 = 0;
         long q3 = 0;
-        if (null != mQMap && !mQMap.isEmpty()){
+        //存放4个code的list
+        List<HashMap<String,String>> blendList = new ArrayList<>();
+        if (null == mQMap || mQMap.isEmpty()){
+            //统计表中没有这个部门的MQ数据，全部走无脑推
+            System.out.println("-----------当前用户为新用户，此时统计表里没有对应部门，全走无脑推");
+            blendList = elasticSearchMapper.getReserveHotSpot(searchType);
+        }else {
             m = Long.parseLong(mQMap.get("M").toString());
             q1 = Long.parseLong(mQMap.get("Q1").toString());
             q2 = Long.parseLong(mQMap.get("Q2").toString());
             q3 = Long.parseLong(mQMap.get("Q3").toString());
+
+            System.out.println("一周总记录数"+oneWeekCount+"***");
+            System.out.println("M值"+m+"***");
+            if (oneWeekCount<m){//全部走部门排序
+                alsList.subList(0,alsList.size()).clear();
+                if (depList.size()>=4){
+                    depList.subList(4,depList.size()).clear();
+                }
+                System.out.println("协同和部门混合比例："+"0:4");
+            }else if (oneWeekCount >= m && oneWeekCount < getMax(m,q1)){
+                alsList.subList(1,alsList.size()).clear();
+                removeRepeat(alsList,depList);
+                if (depList.size()>=3){
+                    depList.subList(3,depList.size()).clear();
+                }
+                System.out.println("协同和部门混合比例："+"1:3");
+            }else if (oneWeekCount >= getMax(m,q1) && oneWeekCount < getMax(m,q2)){
+                alsList.subList(2,alsList.size()).clear();
+                removeRepeat(alsList,depList);
+                if (depList.size()>=2){
+                    depList.subList(2,depList.size()).clear();
+                }
+                System.out.println("协同和部门混合比例："+"2:2");
+            }else if (oneWeekCount >= getMax(m,q2) && oneWeekCount < getMax(m,q3)){
+                alsList.subList(3,alsList.size()).clear();
+                removeRepeat(alsList,depList);
+                if (depList.size()>=1){
+                    depList.subList(1,depList.size()).clear();
+                }
+                System.out.println("协同和部门混合比例："+"3:1");
+            }else if (oneWeekCount >= getMax(m,q3)){
+//            alsList.subList(4,alsList.size()).clear();
+                depList.subList(0,depList.size()).clear();
+                System.out.println("协同和部门混合比例："+"4:0");
+            }
+            loopAdd(blendList,alsList);
+            loopAdd(blendList,depList);
         }
-        //存放4个code的list
-        List<HashMap<String,String>> blendList = new ArrayList<>();
-        System.out.println("一周总记录数"+oneWeekCount+"***");
-        System.out.println("M值"+m+"***");
-        if (oneWeekCount<m){//全部走部门排序
-            alsList.subList(0,alsList.size()).clear();
-            if (depList.size()>=4){
-                depList.subList(4,depList.size()).clear();
-            }
-            System.out.println("协同和部门混合比例："+"0:4");
-        }else if (oneWeekCount >= m && oneWeekCount < getMax(m,q1)){
-            alsList.subList(1,alsList.size()).clear();
-            removeRepeat(alsList,depList);
-            if (depList.size()>=3){
-                depList.subList(3,depList.size()).clear();
-            }
-            System.out.println("协同和部门混合比例："+"1:3");
-        }else if (oneWeekCount >= getMax(m,q1) && oneWeekCount < getMax(m,q2)){
-            alsList.subList(2,alsList.size()).clear();
-            removeRepeat(alsList,depList);
-            if (depList.size()>=2){
-                depList.subList(2,depList.size()).clear();
-            }
-            System.out.println("协同和部门混合比例："+"2:2");
-        }else if (oneWeekCount >= getMax(m,q2) && oneWeekCount < getMax(m,q3)){
-            alsList.subList(3,alsList.size()).clear();
-            removeRepeat(alsList,depList);
-            if (depList.size()>=1){
-                depList.subList(1,depList.size()).clear();
-            }
-            System.out.println("协同和部门混合比例："+"3:1");
-        }else if (oneWeekCount >= getMax(m,q3)){
-            alsList.subList(4,alsList.size()).clear();
-            depList.subList(0,depList.size()).clear();
-            System.out.println("协同和部门混合比例："+"4:0");
-        }
-        loopAdd(blendList,alsList);
-        loopAdd(blendList,depList);
         System.out.println("blendList为"+blendList);
-        String paramStr = new String();
+//        String paramStr = new String();
         List<HashMap<String,Object>> dataList = new ArrayList<>();
+        String maxDayDate = new String();
         for (int i=0;i<blendList.size();i++){
             HashMap<String,String> map = blendList.get(i);
             String markType = map.get("MARKTYPE");
             if (markType.equals("1")){
-                paramStr = "-1,-1,"+map.get("BM");
-                HashMap<String,Object> resMap = (HashMap<String, Object>) restTemplate.postForObject("http://DW3-NEWQUERY-HOMEPAGE-ZUUL-TEST/index/indexForHomepage/dataOfAllKpi",paramStr,Object.class);
+//                paramStr = "-1,-1,"+map.get("BM");
+//                HashMap<String,Object> resMap = (HashMap<String, Object>) restTemplate.postForObject("http://DW3-NEWQUERY-HOMEPAGE-ZUUL-TEST/index/indexForHomepage/dataOfAllKpi",paramStr,Object.class);
                 HashMap<String,Object> sigMap = new HashMap<>();
                 HashMap<String,Object> detailMap = new HashMap<>();
-                detailMap.put("date",resMap.get("date").toString());
+//                maxDayDate = elasticSearchMapper.getMaxDayDate(map.get("BM"));
+                maxDayDate = elasticSearchMapper.getMaxDate(map.get("BM"));
+                String date = new String();
+                if (null != maxDayDate && !"".equals(maxDayDate)){
+                    maxDayDate= maxDayDate.replace("-", "");
+                    date=maxDayDate.substring(0,4)+"年"+maxDayDate.substring(4,6)+"月"+maxDayDate.substring(6,8)+"日";
+                }else {
+                    date = "-";
+                }
+//                detailMap.put("date",resMap.get("date").toString());
+                detailMap.put("date",date);
                 detailMap.put("dayOrMonth",map.get("ACCT_TYPE"));
                 detailMap.put("markName","指标");
-                detailMap.put("chartType",resMap.get("chartType").toString());
+//                detailMap.put("chartType",resMap.get("chartType").toString());
                 detailMap.put("title",map.get("KSNAME"));
-                detailMap.put("chart",resMap.get("chart"));
+//                detailMap.put("chart",resMap.get("chart"));
                 sigMap.put("ord",String.valueOf(i+1));
                 sigMap.put("markType","1");
                 sigMap.put("id",map.get("BM"));
-                sigMap.put("isMinus",map.get("IS_MINUS"));
-                sigMap.put("isPercentage",map.get("IS_PERCENTAGE"));
+//                sigMap.put("isMinus",map.get("IS_MINUS"));
+//                sigMap.put("isPercentage",map.get("IS_PERCENTAGE"));
                 sigMap.put("url","/indexDetails");
                 sigMap.put("data",detailMap);
                 dataList.add(sigMap);
             }else if (markType.equals("2")){
-                paramStr = map.get("BM");
-                HashMap<String,Object> resMap = (HashMap<String, Object>) restTemplate.postForObject("http://DW3-NEWQUERY-HOMEPAGE-ZUUL-TEST/subject/specialForHomepage/icon",paramStr,Object.class);
+//                paramStr = map.get("BM");
+//                HashMap<String,Object> resMap = (HashMap<String, Object>) restTemplate.postForObject("http://DW3-NEWQUERY-HOMEPAGE-ZUUL-TEST/subject/specialForHomepage/icon",paramStr,Object.class);
                 HashMap<String,Object> sigMap = new HashMap<>();
                 HashMap<String,Object> detailMap = new HashMap<>();
                 sigMap.put("ord",String.valueOf(i+1));
                 sigMap.put("id",map.get("BM"));
-                sigMap.put("url",resMap.get("url").toString());
+//                sigMap.put("url",resMap.get("url").toString());
+                sigMap.put("url",map.get("MARKNAME"));
                 sigMap.put("markType","2");
                 detailMap.put("tabName",map.get("ACCT_TYPE"));
                 detailMap.put("title",map.get("KSNAME"));
                 detailMap.put("type","专题");
-                detailMap.put("src",resMap.get("src").toString());
+//                detailMap.put("src",resMap.get("src").toString());
                 sigMap.put("data",detailMap);
                 dataList.add(sigMap);
             }

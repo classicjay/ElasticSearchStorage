@@ -59,7 +59,18 @@ public interface ElasticSearchMapper {
 
     public HashMap<String,Object> getOneWeekLogCount(HashMap<String,String> paramMap);
 
+    public HashMap<String,Object> getDeptProv(@Param(value = "userId") String userId);
+
     public HashMap<String,Object> getMQ(HashMap<String,String> paramMap);
 
     public List<HashMap<String,String>> getDepSorted(HashMap<String,String> paramMap);
+
+    public String getMaxDayDate(@Param(value = "kpiCode") String kpiCode);
+
+    public String getMaxMonthDate(@Param(value = "kpiCode") String kpiCode);
+
+    public String getMaxDate(@Param(value = "kpiCode") String kpiCode);
+
+    public List<HashMap<String,String>> getReserveHotSpot(@Param(value = "searchType") String searchType);
+
 }
